@@ -1,6 +1,10 @@
 # LedgerLens: evidence before confidence
 **Ayaan Khan · MiraFlores case study · Prepared for GreenGrowth CPAs**
 
+**Live prototype:** https://ayaan-27.github.io/Miraflores_Project/
+
+**Source and README:** https://github.com/ayaan-27/Miraflores_Project
+
 ## 1. Three problems, one choice
 
 **A. Month-end evidence scattered across transactions and documents.** The hypothesis is that small-business bookkeeping reviewers spend time finding receipts, checking ambiguous matches, and asking clients the same questions repeatedly. Reviewers and clients bear the cost: repeated requests, delayed close, and weak traceability. I have not observed GreenGrowth's internal workflow or interviewed its staff; this is an industry workflow hypothesis. My motivation comes from the provenance problem in my own work: my resume describes building a Ricoh service-document assistant that preserves step-to-image references. A useful answer needs inspectable evidence.
@@ -51,4 +55,4 @@ The reviewer may confirm a candidate, exclude an item with an explanation, or ma
 
 **AI and reuse disclosure:** an AI coding assistant helped interpret the brief, propose the scope, generate the interface, matching code, tests, and this written draft, and run the checks. The resume informed problem choices; no employer code, client records, or prior application implementation was reused. Runtime matching is conventional software, not an AI model. Test coverage and source inspection were used to check generated work, including arithmetic, decision conflicts, and adversarial input. The matching functions and regression tests are separated from the UI to support explanation and adaptation during the live session.
 
-**Time and delivery:** the accompanying delivery-status note records actual elapsed assisted build time and final publication status. Recording a walkthrough and any subsequent personal review are separate; no time is fabricated to imply compliance with the suggested 2–4-hour allocation. A video outline is provided, but no video was produced, as requested.
+**Time and delivery:** approximately 25 minutes of AI-assisted implementation, writing, testing, and packaging in this session; candidate review and video recording are not included. The prototype is published on GitHub Pages, and the deployment workflow verified the public assets against the tested build. A walkthrough outline is included; the candidate will record the video separately. The next investigation is the reviewer interviews and spreadsheet comparison described above.

@@ -46,6 +46,7 @@ for i,part in enumerate(parts[1:]):
     if not i:
         story.append(Paragraph('Evidence before confidence.',styles['title']))
         story.append(Paragraph('Ayaan Khan | MiraFlores case study | Prepared for GreenGrowth CPAs',styles['subtitle']))
+        story.append(Paragraph('<b>Live prototype:</b> <link href="https://ayaan-27.github.io/Miraflores_Project/" color="#214d3c">ayaan-27.github.io/Miraflores_Project/</link><br/><b>Source and README:</b> <link href="https://github.com/ayaan-27/Miraflores_Project" color="#214d3c">github.com/ayaan-27/Miraflores_Project</link>',styles['subtitle']))
     heading,content=part.split('\n',1)
     story.append(Paragraph(inline(heading),styles['heading']))
     for para in content.strip().split('\n\n'):

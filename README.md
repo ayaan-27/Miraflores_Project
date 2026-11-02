@@ -4,6 +4,8 @@
 
 LedgerLens turns bank transactions and receipt metadata into an explained exception queue, reviewer decisions, a downloadable review register, and an editable client request. Matching actually runs in the browser. There is no LLM, paid service, API key, backend, or mocked matching response.
 
+**[Open the live prototype](https://ayaan-27.github.io/Miraflores_Project/)** · **[Written submission (PDF)](docs/written-submission.pdf)** · **[Source code](https://github.com/ayaan-27/Miraflores_Project)**
+
 ## Run locally
 
 Requirements: **Node.js 20+** (tested with 24.19.0), **Python 3.10+** (tested with 3.12.14), and a modern browser with ES modules and native HTML dialogs. No packages need installing and no lockfile is needed; there are zero npm dependencies.
@@ -130,4 +132,4 @@ To regenerate the already-included PDF (optional, separate from running the prod
 
 The app can be hosted on any static host; upload `dist/`. The included Pages workflow builds and deploys on main pushes once **GitHub repository Settings → Pages → Source → GitHub Actions** is selected. This is a one-time repository setting requiring repository administration rights. The workflow needs GitHub Pages and Actions enabled. GitHub supplies the workflow token; do not put credentials in source.
 
-For branch-based Pages, publish the contents of `dist/` (including a `.nojekyll` file) to a `gh-pages` branch and select **Deploy from a branch → gh-pages → /(root)** instead. Use one deployment method at a time. The expected URL is `https://ayaan-27.github.io/Miraflores_Project/`; treat it as live only after deployment and an HTTP/browser check succeed. Deployment status is recorded separately in `docs/delivery-status.md`.
+After deployment, the workflow checks the public page, stylesheet, application code, matching engine, and sample files against SHA-256 hashes of the exact build. It also checks expected sample results. For branch-based Pages, publish the contents of `dist/` (including a `.nojekyll` file) to a `gh-pages` branch and select **Deploy from a branch → gh-pages → /(root)** instead. Use one deployment method at a time. The live URL is `https://ayaan-27.github.io/Miraflores_Project/`. Deployment evidence is recorded in `docs/delivery-status.md`.
