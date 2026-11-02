@@ -19,11 +19,15 @@
 
 ## 2. Approach and smallest useful step
 
+**How I thought about the problem.** I started with a question: where does a professional lose time turning information into a decision they can defend? My work with document retrieval and cross-database analytics made supporting evidence a natural focus. In accounting, that suggested the handoff between a transaction, its receipt, and the reviewer's next action, rather than a broad “AI accountant.”
+
+I broke that handoff into three questions: is evidence available, is the relationship unambiguous, and what happens next? A same-amount receipt is insufficient: two charges can compete for it or merchant names can differ. This led to a conservative principle: explain uncertainty instead of hiding it behind a confident match. The useful output becomes a recorded decision or a precise request. CSV inputs let me test that loop before adding extraction or integrations. Whether GreenGrowth needs this workflow remains to be established.
+
 **Today, as a hypothesis:** a reviewer exports transactions, searches a receipt folder or spreadsheet, records exceptions, and emails a client. Existing accounting tools may already address much of this. A better outcome would be a shorter, more precise unresolved-item queue with traceable decisions and fewer duplicate requests, while keeping professional judgment with the reviewer.
 
 **First step:** import one bank CSV and one receipt-metadata CSV; find candidate evidence; explain exceptions; record a human decision; export a review register and client request. LedgerLens is an evidence triage tool, not a bank balance reconciliation, expense-policy checker, tax adviser, or completed audit. No ledger entry is posted.
 
-**Credible alternative:** use a standardized spreadsheet template and a client-request checklist. This is cheaper to adopt and may be sufficient at low volume. I chose a small browser application to test whether consistent matching rules, one-receipt-per-charge enforcement, and per-item provenance reduce review effort. If a template performs equally well, a new product is not justified. Another alternative, adding a feature inside an incumbent accounting platform, could offer better distribution; platform access and unmet needs must be researched before building integrations.
+**Credible alternative:** a standardized spreadsheet and client-request checklist may be sufficient at low volume. The browser application tests whether consistent matching, one-receipt-per-charge enforcement, and source references reduce effort. If the template performs equally well, a new product is not justified. An incumbent accounting platform may offer better distribution; its capabilities and unmet needs need research before integration work.
 
 **Why no runtime AI:** the core requirement is exact signed amounts, constrained date comparisons, and explainable exceptions. Conventional rules are easier to audit here than an LLM-generated confidence score. Amounts are parsed into integer cents; a partial vendor match is never automatically confirmed. AI may later help extract receipt fields or suggest merchant aliases, but extraction would need cited source regions, measured error rates, privacy controls, and human verification before it could affect matching.
 

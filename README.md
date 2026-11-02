@@ -6,6 +6,8 @@ LedgerLens turns bank transactions and receipt metadata into an explained except
 
 **[Open the live prototype](https://ayaan-27.github.io/Miraflores_Project/)** · **[Written submission (PDF)](docs/written-submission.pdf)** · **[Source code](https://github.com/ayaan-27/Miraflores_Project)**
 
+Recording your walkthrough? Use the [ready-to-speak video script](docs/video-script.md), including timed narration, screen actions, and follow-up answers.
+
 ## Run locally
 
 Requirements: **Node.js 20+** (tested with 24.19.0), **Python 3.10+** (tested with 3.12.14), and a modern browser with ES modules and native HTML dialogs. No packages need installing and no lockfile is needed; there are zero npm dependencies.
@@ -121,6 +123,7 @@ scripts/build.js              static production build
 docs/written-submission.md    editable written submission
 docs/written-submission.pdf   formatted submission (four pages)
 docs/walkthrough.md           optional outline for your own video
+docs/video-script.md          full spoken script and screen actions
 .github/workflows/            CI and GitHub Pages deployment
 ```
 

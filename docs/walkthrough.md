@@ -2,6 +2,8 @@
 
 Use this as an outline for your own recording. Read the source and adapt the wording so you can explain each choice. This is not a video deliverable.
 
+For a complete ready-to-speak version with screen actions and follow-up answers, see [video-script.md](video-script.md).
+
 **0:00–1:00 — Problem and choice.** Briefly compare evidence review with cross-database analytics and safe evaluation data. Explain what your resume actually supports and what is still an accounting hypothesis. State that the prototype is an independent project for evaluation, not a GreenGrowth integration.
 
 **1:00–2:00 — Orientation.** Open the deployed site, reset demo, and show the labels: synthetic data, local browser processing, 12 bank rows, 10 receipt records. The baseline is 6 matched and 6 open, with $593.50 of absolute open transaction value. Explain that matched metadata is not a verified document.

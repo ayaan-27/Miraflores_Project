@@ -3,7 +3,7 @@
 - **Working prototype:** https://ayaan-27.github.io/Miraflores_Project/
 - **Source and README:** https://github.com/ayaan-27/Miraflores_Project
 - **Written submission:** `written-submission.pdf` (four pages), with editable `written-submission.md`.
-- **Video:** not produced, as requested; `walkthrough.md` gives an outline for the candidate's own recording.
+- **Video:** not produced, as requested; `video-script.md` provides complete narration, screen actions, and follow-up answers, and `walkthrough.md` provides a short outline.
 
 ## Verification evidence
 
@@ -19,6 +19,8 @@
 Approximately **25 minutes of AI-assisted implementation, writing, testing, and packaging** in this session on November 1, 2026, starting about 6:16 p.m. America/Los_Angeles. Candidate review and video recording are excluded. This is elapsed assisted work, not a claim about the candidate's independent effort.
 
 The site and source include only synthetic data. No personal resume document, uploaded brief, secrets, employer code, or client information was published. Accounting workflow needs remain hypotheses, not claims about GreenGrowth CPAs' internal practices.
+
+Follow-up revision: the four-page submission now includes an explicit first-person explanation of the problem-selection reasoning. The video script expands the outline into ready-to-speak content grounded in the supplied resume; personal phrasing should be adapted by the candidate. The original build-time estimate above excludes this follow-up revision.
 
 ## Reproduction
 
