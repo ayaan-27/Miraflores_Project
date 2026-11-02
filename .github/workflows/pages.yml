@@ -24,11 +24,13 @@ jobs:
       - run: npm test
       - run: npm run build
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
       - name: Publish
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify public prototype
+        env:
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: node scripts/verify_site.js

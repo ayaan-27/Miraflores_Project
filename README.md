@@ -124,6 +124,8 @@ docs/walkthrough.md           optional outline for your own video
 
 All implementation code and synthetic samples were created for this submission using an AI coding assistant; no prior application code or employer data was reused. The resume informed the problem selection only and is not included in the site or source package. See the written submission for assumptions, tradeoffs, validation, AI disclosure, and next experiments.
 
+To regenerate the already-included PDF (optional, separate from running the product), install `reportlab==4.4.9` in a Python virtual environment and run `python3 scripts/render_submission.py` from the repository root. The script embeds the fonts bundled with ReportLab and inserts four explicit section pages.
+
 ## Deploy
 
 The app can be hosted on any static host; upload `dist/`. The included Pages workflow builds and deploys on main pushes once **GitHub repository Settings → Pages → Source → GitHub Actions** is selected. This is a one-time repository setting requiring repository administration rights. The workflow needs GitHub Pages and Actions enabled. GitHub supplies the workflow token; do not put credentials in source.
