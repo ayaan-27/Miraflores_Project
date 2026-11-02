@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="LedgerLens: a traceable month-end evidence review prototype. Match transactions, resolve exceptions, and prepare client requests in your browser.">
+  <meta name="theme-color" content="#173f35">
+  <title>LedgerLens — Evidence before confidence</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23173f35'/%3E%3Cpath d='M18 16v30h28M29 16v19h17' fill='none' stroke='%23d6edab' stroke-width='5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="./" aria-label="LedgerLens home"><span class="brandmark">L<span>→</span></span>LedgerLens<span class="branddot">.</span></a>
+    <div class="workspace-label">YOUR WORKSPACE</div>
+    <div class="workspace"><span class="avatar">AK</span><div>Ayaan Khan<small>Case study workspace</small></div><span class="workspace-chevron">⌄</span></div>
+    <nav aria-label="Main navigation"><button class="nav-item active" id="nav-review"><span>▦</span> Evidence review <span class="nav-count" id="nav-count">12</span></button><button class="nav-item" id="nav-guide"><span>◈</span> How it works <span>→</span></button></nav>
+    <div class="sidebar-bottom"><div class="privacy-icon">⌁</div><strong>Your files stay with you.</strong><p>Matching happens in this browser. No uploads, accounts, or AI API calls.</p><span class="version">PROTOTYPE · V1.0</span><p class="firm-note">Prepared for GreenGrowth CPAs<br>Independent candidate project</p></div>
+  </aside>
+  <div class="main-shell">
+    <header class="topbar"><div><span class="breadcrumb">Workspace</span><span class="slash">/</span> Evidence review</div><span class="local-badge"><i></i> Browser-only workspace</span></header>
+    <main>
+      <section class="page-heading"><div><div class="eyebrow">MONTH-END, WITH CLARITY</div><h1>A clearer path to close<span>.</span></h1><p>Connect each transaction to its evidence. Give exceptions a next step.</p></div><button class="button primary" id="import-open"><span>↑</span> Import CSVs</button></section>
+      <section class="client-bar" aria-label="Active dataset"><div class="client-icon">C<span>&</span>F</div><div><strong id="client-name">Cedar & Finch Studio</strong><small id="dataset-description">September 2026 · USD · Synthetic sample data</small></div><span class="demo-tag" id="demo-tag">DEMO DATA</span><button class="text-button" id="reset-demo">↻ Reset demo</button></section>
+      <section class="stats" aria-label="Review summary" id="stats"></section>
+      <section class="review-section">
+        <div class="section-title"><div><h2>Evidence workspace <span id="total-count"></span></h2><p>A match is a starting point. Your judgment closes the loop.</p></div><button class="button secondary" id="export-open">Export review pack <span>→</span></button></div>
+        <div class="workspace-grid">
+          <section class="queue" aria-label="Transaction queue">
+            <div class="queue-toolbar"><div class="tabs" role="group" aria-label="Filter transactions"><button data-filter="all" class="tab active">All <span id="all-count"></span></button><button data-filter="open" class="tab">Needs attention <span id="open-count"></span></button><button data-filter="resolved" class="tab">Resolved <span id="resolved-count"></span></button></div><label class="search-box"><span>⌕</span><input id="search" type="search" placeholder="Find a merchant or ID" aria-label="Search transactions"></label></div>
+            <div class="queue-labels"><span>TRANSACTION</span><span>AMOUNT / STATUS</span></div>
+            <div id="transaction-list" class="transaction-list"></div>
+            <div class="queue-footer"><span id="visible-count"></span><span>USD · Expenses positive, refunds negative</span></div>
+          </section>
+          <section class="detail" id="detail" aria-label="Selected transaction"></section>
+        </div>
+      </section>
+      <section class="next-step"><div class="next-icon">→</div><div><h3>Turn open items into a clear conversation.</h3><p>Prepare one specific request for every unresolved transaction.</p></div><button class="button primary" id="request-open">Create client request <span>→</span></button></section>
+      <footer><span><span class="footer-mark">◈</span> Evidence before confidence.</span><span>Receipt metadata only · Human review required · No accounting entries posted</span></footer>
+      <div id="status-message" class="sr-only" role="status" aria-live="polite"></div>
+    </main>
+  </div>
+  <dialog id="import-dialog" aria-labelledby="import-title"><div class="dialog-heading"><div><span class="eyebrow">BRING YOUR OWN DATA</span><h2 id="import-title">Start an evidence review</h2></div><button class="icon-button close-dialog" aria-label="Close import">×</button></div><p>Import two CSVs. Files are processed in memory and never leave this browser. Use synthetic or redacted data for this prototype.</p><form id="import-form"><label>Workspace name<input id="workspace-name" maxlength="80" placeholder="e.g. Acme Studio — October"></label><div class="file-grid"><label class="file-zone"><span>01 / BANK TRANSACTIONS</span><strong>Choose bank CSV</strong><input id="bank-file" type="file" accept=".csv,text/csv" required><small>id, date, description, amount</small><a href="./samples/bank.csv" download>Download sample →</a></label><label class="file-zone"><span>02 / RECEIPT METADATA</span><strong>Choose receipts CSV</strong><input id="receipt-file" type="file" accept=".csv,text/csv" required><small>id, date, vendor, amount, reference</small><a href="./samples/receipts.csv" download>Download sample →</a></label></div><label class="tolerance">Date tolerance<select id="tolerance"><option value="0">Same day</option><option value="1">± 1 day</option><option value="3" selected>± 3 days (default)</option><option value="7">± 7 days</option></select></label><div class="import-help">USD only. Positive = expense; negative = refund, in both files. Dates: YYYY-MM-DD. Max 500 KB / 1,000 rows per file. References are labels, not uploaded documents. A successful import replaces this review and its decisions.</div><div id="import-error" class="error-box" role="alert" hidden></div><div class="dialog-actions"><button type="button" class="button secondary close-dialog">Cancel</button><button type="submit" class="button primary" id="import-submit">Validate & review →</button></div></form></dialog>
+  <dialog id="request-dialog" aria-labelledby="request-title"><div class="dialog-heading"><div><span class="eyebrow">READY FOR YOUR REVIEW</span><h2 id="request-title">A clearer client request</h2></div><button class="icon-button close-dialog" aria-label="Close request">×</button></div><p>Every item comes from the current review. Edit the draft before sharing. Nothing is sent automatically.</p><label class="sr-only" for="request-text">Client request draft</label><textarea id="request-text" class="request-text" spellcheck="true"></textarea><div class="dialog-actions"><span class="micro">Draft only · No email integration</span><button class="button primary" id="download-request">Download draft ↓</button></div></dialog>
+  <dialog id="export-dialog" aria-labelledby="export-title"><div class="dialog-heading"><div><span class="eyebrow">TAKE THE TRAIL WITH YOU</span><h2 id="export-title">Export review pack</h2></div><button class="icon-button close-dialog" aria-label="Close export">×</button></div><p>Preserve the source references, rules, and reviewer decisions. These are evidence review outputs, not a completed audit or a bank reconciliation.</p><div class="export-option"><div><strong>Review register</strong><small>CSV · One row per bank transaction, including open items</small></div><button class="button secondary" id="download-csv">Download CSV ↓</button></div><div class="export-option"><div><strong>Full review snapshot</strong><small>JSON · Imported metadata, rules, decisions, and timestamps</small></div><button class="button secondary" id="download-json">Download JSON ↓</button></div><div class="notice">Your review lasts until this page is reloaded. Download the snapshot before leaving. Snapshot re-import is deferred.</div></dialog>
+  <dialog id="guide-dialog" aria-labelledby="guide-title"><div class="dialog-heading"><div><span class="eyebrow">SMALL SCOPE. REAL WORKFLOW.</span><h2 id="guide-title">Evidence, then a decision</h2></div><button class="icon-button close-dialog" aria-label="Close guide">×</button></div><div class="guide-step"><b>01</b><div><h3>Start with structured evidence</h3><p>Import bank transactions and a receipt index. The demo includes 12 synthetic transactions and 10 synthetic receipt records. PDF contents are not read.</p></div></div><div class="guide-step"><b>02</b><div><h3>Apply inspectable rules</h3><p>Exact signed USD amount, dates within the chosen tolerance, and normalized merchant overlap of at least 50%. Only a unique, exact merchant match with no shared receipt is marked matched. This is a heuristic, not AI confidence.</p></div></div><div class="guide-step"><b>03</b><div><h3>Keep judgment with the reviewer</h3><p>Confirm a candidate, record an exclusion with a reason, or mark evidence requested. A receipt cannot be allocated twice. A matching record does not prove business purpose, tax treatment, or document authenticity.</p></div></div><div class="guide-step"><b>04</b><div><h3>Leave with a useful action</h3><p>Download a review register and an editable client request. No accounting entries or emails are sent. This prototype has no LLM, external integrations, or server-side storage.</p></div></div></dialog>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
