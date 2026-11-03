@@ -27,14 +27,19 @@ with (output / "execution.log").open("w") as log:
         tail = tail[-30:]
         try:
             event = json.loads(line)
-            if isinstance(event, dict) and "title" in event:
+            if isinstance(event, dict) and "title" in event and event.get("kind") != "error":
                 last_phase = event["title"]
         except ValueError:
             pass
     status = process.wait()
 if status:
     detail = f"Exit {status}; last observable phase: {last_phase}. "
-    detail += " | ".join(tail[-6:])[:1200]
+    execution = (output / "execution.log").read_text()
+    native_position = execution.find("Fatal Python error:")
+    if native_position >= 0:
+        detail += " | ".join(execution[native_position:].splitlines()[:14])[:1600]
+    else:
+        detail += " | ".join(tail[-6:])[:1200]
     detail = detail.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
     print("::error title=Local-model execution diagnostic::" + detail, flush=True)
     raise SystemExit(status if status > 0 else 128 - status)
