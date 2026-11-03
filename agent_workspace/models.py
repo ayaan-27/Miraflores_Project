@@ -130,7 +130,7 @@ def validate_citations(model: BaseModel, pages: list[str]) -> None:
                     )
             elif needle not in quote:
                 raise ValueError(
-                    f"{name}: extracted value is unsupported by its source quote."
+                    f"{name}: extracted value {value.value!r} is unsupported by source quote {value.citation.quote[:160]!r}."
                 )
         elif isinstance(value, BaseModel):
             validate_citations(value, pages)

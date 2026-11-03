@@ -49,8 +49,30 @@ def build_graph(model, store, checkpointer):
             "Reading the invoice PDF",
             {"filename": state["document"]["filename"], "model": model.name},
         )
-        invoice = await model.extract_invoice(state["document"])
-        validate_invoice(invoice, state["document"]["pages"])
+        feedback = None
+        invoice = None
+        for attempt in range(3):
+            try:
+                invoice = await model.extract_invoice(state["document"], feedback)
+                validate_invoice(invoice, state["document"]["pages"])
+                break
+            except ValueError as error:
+                feedback = {
+                    "issue": str(error),
+                    "previous_extraction": invoice.model_dump() if invoice else None,
+                }
+                await store.emit(
+                    state["run_id"],
+                    1,
+                    "returned",
+                    "Unsupported extraction returned for source-grounded repair",
+                    {**feedback, "attempt": attempt + 1},
+                )
+                if attempt == 2:
+                    raise ValueError(
+                        "Could not ground the invoice after three attempts: "
+                        + str(error)
+                    ) from error
         await store.emit(
             state["run_id"],
             1,
@@ -250,8 +272,27 @@ def build_graph(model, store, checkpointer):
 
     async def accept_evidence(state: InvestigationState):
         document = state["pending_document"]
-        reply = await model.extract_receiving(document)
-        validate_citations(reply, document["pages"])
+        feedback = None
+        reply = None
+        for attempt in range(2):
+            try:
+                reply = await model.extract_receiving(document, feedback)
+                validate_citations(reply, document["pages"])
+                break
+            except ValueError as error:
+                feedback = {
+                    "issue": str(error),
+                    "previous_extraction": reply.model_dump() if reply else None,
+                }
+                await store.emit(
+                    state["run_id"],
+                    1,
+                    "returned",
+                    "Receiving extraction returned for source-grounded repair",
+                    {**feedback, "attempt": attempt + 1},
+                )
+                if attempt == 1:
+                    raise
         if reply.po_number.value != state["invoice"]["po_number"]["value"]:
             raise ValueError("The reply refers to a different purchase order.")
         if reply.sku.value not in {

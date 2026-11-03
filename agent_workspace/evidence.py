@@ -33,8 +33,10 @@ def extract_pdf(data: bytes) -> list[str]:
         raise ValueError(
             "No readable text found. Scanned images need OCR, which is outside this version."
         )
-    if sum(map(len, pages)) > 30_000:
-        raise ValueError("Keep invoice PDFs under 30,000 extracted characters.")
+    if sum(map(len, pages)) > 12_000:
+        raise ValueError(
+            "Keep PDFs under 12,000 extracted characters to fit the local model's context budget."
+        )
     return pages
 
 

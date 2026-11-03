@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     CMAKE_ARGS="-DGGML_CUDA=OFF -DGGML_NATIVE=OFF"
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential cmake libgomp1 \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential cmake libgomp1 tzdata \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

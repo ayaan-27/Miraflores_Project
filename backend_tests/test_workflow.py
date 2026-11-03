@@ -165,6 +165,30 @@ async def test_fabricated_extraction_and_invalid_pdf_are_rejected():
 
 
 @pytest.mark.asyncio
+async def test_extraction_repairs_an_unsupported_sku_without_weakening_source_checks(
+    workspace,
+):
+    service, store = workspace
+    original = service.model.extract_invoice
+    calls = []
+
+    async def bad_then_repair(document, feedback=None):
+        calls.append(feedback)
+        invoice = await original(document, feedback)
+        if len(calls) == 1:
+            invoice.lines[0].sku.citation.quote = "Item: Desk lamps"
+        return invoice
+
+    service.model.extract_invoice = bad_then_repair
+    run = await start_sample(service, store)
+    result = await wait_for_status(service, run, {"awaiting_review"})
+    assert len(calls) == 2
+    assert "sku" in calls[1]["issue"]
+    assert result["invoice"]["lines"][0]["sku"]["value"] == "LAMP-01"
+    assert result["controls"]["recommendation"] == "hold"
+
+
+@pytest.mark.asyncio
 async def test_unsupported_memo_sources_are_rejected_and_retried(workspace):
     service, store = workspace
     original = service.model.verify

@@ -29,7 +29,7 @@ class FixtureModel:
                     )
         raise ValueError("Missing source label: " + label)
 
-    async def extract_invoice(self, document):
+    async def extract_invoice(self, document, feedback=None):
         pages = document["pages"]
         f = lambda key: self.field(pages, key)
         return Invoice(
@@ -86,7 +86,7 @@ class FixtureModel:
             else "No additional evidence requested.",
         )
 
-    async def extract_receiving(self, document):
+    async def extract_receiving(self, document, feedback=None):
         f = lambda key: self.field(document["pages"], key)
         return ReceivingReply(
             report_number=f("Report number"),
