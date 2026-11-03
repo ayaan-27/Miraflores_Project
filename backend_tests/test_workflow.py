@@ -10,10 +10,13 @@ from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from agent_workspace.api import create_app
 from agent_workspace.evidence import SAMPLES, extract_pdf
 from agent_workspace.models import (
+    AgentDecision,
     Citation,
     ExtractedField,
     ReviewerDecision,
     validate_invoice,
+    ground_source_quotes,
+    validate_citations,
 )
 from agent_workspace.service import RunService
 from agent_workspace.store import Store
@@ -369,3 +372,41 @@ async def test_api_rejects_bad_inputs_and_exports_current_review(tmp_path):
                 page.extract_text() for page in PdfReader(BytesIO(pdf.content)).pages
             )
             assert "2000.00" in content and "Fixture model" in content
+
+
+@pytest.mark.asyncio
+async def test_source_lookup_refuses_ambiguous_supporting_lines():
+    pages = extract_pdf((SAMPLES / "partial-delivery.pdf").read_bytes())
+    invoice = await FixtureModel().extract_invoice({"pages": pages})
+    invoice.lines[0].sku.citation.quote = "Item: Desk lamps"
+    ambiguous_pages = [*pages, "SKU: LAMP-01"]
+    ground_source_quotes(invoice, ambiguous_pages)
+    assert invoice.lines[0].sku.citation.quote == "Item: Desk lamps"
+    with pytest.raises(ValueError, match="unsupported"):
+        validate_citations(invoice, ambiguous_pages)
+
+
+@pytest.mark.asyncio
+async def test_premature_model_finish_is_returned_for_missing_checks(workspace):
+    service, store = workspace
+    original = service.model.investigate
+    first = True
+
+    async def premature_then_complete(state, results, feedback=""):
+        nonlocal first
+        if first:
+            first = False
+            return AgentDecision(
+                action="finish", purpose="Test an incomplete investigation", query=""
+            )
+        return await original(state, results, feedback)
+
+    service.model.investigate = premature_then_complete
+    run = await start_sample(service, store)
+    result = await wait_for_status(service, run, {"awaiting_review"})
+    assert any(
+        event["title"] == "Investigation returned for missing checks"
+        for event in result["events"]
+    )
+    assert len([event for event in result["events"] if event["kind"] == "tool"]) == 5
+    assert result["controls"]["recommendation"] == "hold"

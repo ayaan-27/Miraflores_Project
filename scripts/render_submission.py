@@ -5,6 +5,7 @@ Neither is required to run the LedgerLens application.
 """
 
 from pathlib import Path
+import argparse
 import re
 import shutil
 import subprocess
@@ -18,8 +19,12 @@ from docx.shared import Inches, Pt, RGBColor
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DOCX_PATH = ROOT / "docs/written-submission.docx"
-PDF_PATH = ROOT / "docs/written-submission.pdf"
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--input", default="docs/written-submission.md")
+arguments = parser.parse_args()
+INPUT_PATH = ROOT / arguments.input
+DOCX_PATH = INPUT_PATH.with_suffix(".docx")
+PDF_PATH = INPUT_PATH.with_suffix(".pdf")
 FONT = "Arial"
 
 
@@ -68,7 +73,11 @@ section.top_margin = section.bottom_margin = Inches(1)
 section.left_margin = section.right_margin = Inches(1)
 section.footer_distance = Inches(0.5)
 
-for name, size, bold in [("Normal", 11, False), ("Title", 16, True), ("Heading 1", 12, True)]:
+for name, size, bold in [
+    ("Normal", 11, False),
+    ("Title", 16, True),
+    ("Heading 1", 12, True),
+]:
     style = document.styles[name]
     style.font.name = FONT
     style.font.size = Pt(size)
@@ -98,7 +107,7 @@ heading_format.space_before = Pt(12)
 heading_format.space_after = Pt(6)
 heading_format.keep_with_next = True
 
-content = (ROOT / "docs/written-submission.md").read_text(encoding="utf-8")
+content = INPUT_PATH.read_text(encoding="utf-8")
 for block in content.strip().split("\n\n"):
     block = block.strip()
     if block.startswith("# "):
@@ -120,9 +129,11 @@ field = OxmlElement("w:fldSimple")
 field.set(qn("w:instr"), "PAGE")
 run._r.addnext(field)
 
-document.core_properties.title = "LedgerLens: Month-End Evidence Review"
+document.core_properties.title = content.splitlines()[0].removeprefix("# ")
 document.core_properties.author = "Ayaan Khan"
-document.core_properties.subject = "MiraFlores case study submission for GreenGrowth CPAs"
+document.core_properties.subject = (
+    "MiraFlores case study submission for GreenGrowth CPAs"
+)
 document.core_properties.comments = ""
 document.save(DOCX_PATH)
 print(DOCX_PATH)
@@ -147,8 +158,10 @@ with tempfile.TemporaryDirectory(prefix="ledgerlens-word-") as temp:
         check=True,
         timeout=60,
     )
-    generated = temporary / "written-submission.pdf"
+    generated = temporary / PDF_PATH.name
     if not generated.exists() or generated.stat().st_size == 0:
-        raise SystemExit("Word export did not produce a PDF; the previous PDF was preserved.")
+        raise SystemExit(
+            "Word export did not produce a PDF; the previous PDF was preserved."
+        )
     shutil.copyfile(generated, PDF_PATH)
 print(PDF_PATH)

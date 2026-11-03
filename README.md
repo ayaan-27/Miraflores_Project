@@ -11,7 +11,7 @@ This development branch adds a four-stage **LangGraph** invoice-investigation wo
 
 **[Agent setup, architecture, boundaries, and hosting instructions](docs/agent-upgrade.md)**
 
-Framework/tools/control/API tests and browser acceptance have passed using explicit model test doubles. Live open-model validation runs separately in the repository's CI environment. Its result must be checked before calling model behavior verified. Current-instance model download is blocked by the pending cloud network setting. A Python/model host is required for the public v2 link; GitHub Pages cannot run this backend.
+Framework/tools/control/API tests and browser acceptance pass with explicit test doubles. The complete **real-model integration also passed** on the pinned CPU stack: actual PDF extraction, five tool calls per round, the initial hold, a new receiving PDF, resumption of the same case, and both review gates. [Validation evidence](https://github.com/ayaan-27/Miraflores_Project/actions/runs/41565144512). Automated reviewer inputs in that test are labeled as such. Public hosting remains pending; GitHub Pages cannot run this Python/model backend.
 
 The v1 submission documents below are retained until the v2 release gates pass; they do not describe v2.
 
