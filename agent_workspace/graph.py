@@ -14,6 +14,7 @@ from .models import (
     integer_quantity,
     validate_citations,
     validate_invoice,
+    ground_source_quotes,
 )
 from .store import now
 from .tools import make_tools, TOOL_NAMES
@@ -54,6 +55,15 @@ def build_graph(model, store, checkpointer):
         for attempt in range(3):
             try:
                 invoice = await model.extract_invoice(state["document"], feedback)
+                changes = ground_source_quotes(invoice, state["document"]["pages"])
+                if changes:
+                    await store.emit(
+                        state["run_id"],
+                        1,
+                        "grounding",
+                        "Source quotes anchored by a unique labeled PDF lookup",
+                        {"changes": changes},
+                    )
                 validate_invoice(invoice, state["document"]["pages"])
                 break
             except ValueError as error:
@@ -277,6 +287,15 @@ def build_graph(model, store, checkpointer):
         for attempt in range(2):
             try:
                 reply = await model.extract_receiving(document, feedback)
+                changes = ground_source_quotes(reply, document["pages"])
+                if changes:
+                    await store.emit(
+                        state["run_id"],
+                        1,
+                        "grounding",
+                        "Receiving quotes anchored by a unique labeled PDF lookup",
+                        {"changes": changes},
+                    )
                 validate_citations(reply, document["pages"])
                 break
             except ValueError as error:

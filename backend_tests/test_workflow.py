@@ -176,6 +176,7 @@ async def test_extraction_repairs_an_unsupported_sku_without_weakening_source_ch
         calls.append(feedback)
         invoice = await original(document, feedback)
         if len(calls) == 1:
+            invoice.lines[0].sku.value = "NOT-IN-THE-SOURCE"
             invoice.lines[0].sku.citation.quote = "Item: Desk lamps"
         return invoice
 
@@ -185,6 +186,28 @@ async def test_extraction_repairs_an_unsupported_sku_without_weakening_source_ch
     assert len(calls) == 2
     assert "sku" in calls[1]["issue"]
     assert result["invoice"]["lines"][0]["sku"]["value"] == "LAMP-01"
+    assert result["controls"]["recommendation"] == "hold"
+
+
+@pytest.mark.asyncio
+async def test_valid_value_with_bad_quote_is_anchored_to_unique_actual_source_line(
+    workspace,
+):
+    service, store = workspace
+    original = service.model.extract_invoice
+
+    async def wrong_quote(document, feedback=None):
+        invoice = await original(document, feedback)
+        invoice.lines[0].sku.citation.quote = "Item: Desk lamps"
+        return invoice
+
+    service.model.extract_invoice = wrong_quote
+    run = await start_sample(service, store)
+    result = await wait_for_status(service, run, {"awaiting_review"})
+    field = result["invoice"]["lines"][0]["sku"]
+    assert field["value"] == "LAMP-01"
+    assert field["citation"]["quote"] == "SKU: LAMP-01"
+    assert any(event["kind"] == "grounding" for event in result["events"])
     assert result["controls"]["recommendation"] == "hold"
 
 

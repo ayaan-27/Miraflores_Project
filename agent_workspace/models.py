@@ -115,6 +115,12 @@ def validate_citations(model: BaseModel, pages: list[str]) -> None:
             if quote not in clean_text(pages[value.citation.page - 1]):
                 raise ValueError(f"{name}: quote was not found in the source PDF.")
             needle = clean_text(value.value)
+            if name == "bank_last4" and not re.search(
+                r"(?<!\d)" + re.escape(needle) + r"(?!\d)", quote
+            ):
+                raise ValueError(
+                    "bank_last4: the literal account suffix is unsupported by its source quote."
+                )
             if re.fullmatch(r"\d+(?:\.\d{1,2})?", needle):
                 # Numeric token boundaries prevent citing 12000 as support for 120.
                 tokens = re.findall(r"\d[\d,]*(?:\.\d+)?", quote)
@@ -166,3 +172,72 @@ def validate_invoice(invoice: Invoice, pages: list[str]) -> None:
         integer_quantity(line.quantity.value)
         decimal_amount(line.unit_price.value)
         decimal_amount(line.line_total.value)
+
+
+SOURCE_LABELS = {
+    "vendor": ["Vendor:", "Supplier:"],
+    "invoice_number": ["Invoice number:", "Invoice #:", "Invoice no:"],
+    "po_number": ["Purchase order:", "PO number:", "PO #:"],
+    "invoice_date": ["Invoice date:"],
+    "currency": ["Currency:"],
+    "total": ["Invoice total:", "Total due:"],
+    "bank_last4": ["Bank account ending:", "Account ending:"],
+    "sku": ["SKU:", "Product code:", "Item code:"],
+    "quantity": ["Quantity:", "Qty:"],
+    "unit_price": ["Unit price:", "Unit cost:"],
+    "line_total": ["Line total:", "Extended amount:"],
+    "report_number": ["Report number:", "Receiving report:"],
+    "received_quantity": ["Additional quantity received:", "Received quantity:"],
+}
+
+
+def ground_source_quotes(model: BaseModel, pages: list[str]) -> list[dict]:
+    """Locate a unique labeled line for an already extracted value; never invent a value.
+
+    Ambiguous or absent matches are left unchanged for the strict validator to
+    accept or reject. The original model output and all changes are traceable.
+    """
+    changes = []
+    for name in type(model).model_fields:
+        value = getattr(model, name)
+        if isinstance(value, ExtractedField):
+            matches = []
+            labels = SOURCE_LABELS.get(name, [])
+            for page_number, page in enumerate(pages, 1):
+                for line in page.splitlines():
+                    if not any(
+                        clean_text(line).startswith(clean_text(label))
+                        for label in labels
+                    ):
+                        continue
+                    candidate = value.model_copy(deep=True)
+                    candidate.citation = Citation(page=page_number, quote=line)
+                    # Reuse the exact original field validator through a typed one-field wrapper.
+                    from pydantic import create_model
+
+                    wrapper = create_model(
+                        "SourceField", **{name: (ExtractedField, ...)}
+                    )
+                    try:
+                        validate_citations(wrapper(**{name: candidate}), pages)
+                    except ValueError:
+                        continue
+                    matches.append(candidate.citation)
+            if len(matches) == 1 and matches[0] != value.citation:
+                changes.append(
+                    {
+                        "field": name,
+                        "value": value.value,
+                        "before": value.citation.model_dump(),
+                        "after": matches[0].model_dump(),
+                        "method": "unique_labeled_pdf_line",
+                    }
+                )
+                value.citation = matches[0]
+        elif isinstance(value, BaseModel):
+            changes.extend(ground_source_quotes(value, pages))
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, BaseModel):
+                    changes.extend(ground_source_quotes(item, pages))
+    return changes
