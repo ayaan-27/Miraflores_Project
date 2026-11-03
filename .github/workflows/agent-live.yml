@@ -40,7 +40,7 @@ jobs:
       - name: Download and SHA-256 verify official open weights
         run: python scripts/download_agent_model.py
       - name: Execute actual model, tools, financial controls, and evidence-resume loop
-        run: python scripts/live_agent_smoke.py
+        run: python scripts/run_live_agent_check.py
       - name: Retain real-run evidence (no model weights)
         if: always()
         uses: actions/upload-artifact@v4

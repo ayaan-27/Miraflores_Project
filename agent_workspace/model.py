@@ -6,6 +6,9 @@ import asyncio
 import json
 import os
 from pathlib import Path
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures.process import BrokenProcessPool
+from multiprocessing import get_context
 from typing import TypeVar
 
 from pydantic import BaseModel
@@ -35,7 +38,7 @@ class LocalModel:
         self.path = path or Path(
             os.environ.get("LEDGERLENS_MODEL_PATH", str(DEFAULT_MODEL_PATH))
         )
-        self._model = None
+        self._pool = None
         self._lock = asyncio.Lock()
         self.last_usage = {}
 
@@ -59,48 +62,37 @@ class LocalModel:
                 "Local model weights are missing. Run scripts/download_agent_model.py first."
             )
         async with self._lock:
-            return await asyncio.to_thread(
-                self._generate, system, data, schema, allowed_actions, max_tokens
-            )
+            if self._pool is None:
+                self._pool = ProcessPoolExecutor(
+                    max_workers=1, mp_context=get_context("spawn")
+                )
+            json_schema = schema.model_json_schema()
+            if allowed_actions:
+                json_schema["properties"]["action"]["enum"] = allowed_actions
+            loop = asyncio.get_running_loop()
+            try:
+                result = await loop.run_in_executor(
+                    self._pool,
+                    generate_in_worker,
+                    str(self.path),
+                    system,
+                    data,
+                    json_schema,
+                    max_tokens,
+                )
+            except BrokenProcessPool as error:
+                self._pool.shutdown(wait=False, cancel_futures=True)
+                self._pool = None
+                raise ValueError(
+                    "The local inference worker stopped unexpectedly. The review API and checkpoint remain available; retry starts a fresh worker."
+                ) from error
+            self.last_usage = result["usage"]
+            return schema.model_validate_json(result["content"])
 
-    def _generate(self, system, data, schema, allowed_actions, max_tokens):
-        if self._model is None:
-            from llama_cpp import Llama
-
-            self._model = Llama(
-                model_path=str(self.path),
-                n_ctx=8192,
-                n_threads=min(4, os.cpu_count() or 2),
-                n_threads_batch=min(4, os.cpu_count() or 2),
-                n_batch=512,
-                verbose=False,
-                seed=42,
-            )
-        json_schema = schema.model_json_schema()
-        if allowed_actions:
-            json_schema["properties"]["action"]["enum"] = allowed_actions
-        result = self._model.create_chat_completion(
-            messages=[
-                {
-                    "role": "system",
-                    "content": BOUNDARY
-                    + "\n"
-                    + system
-                    + "\nJSON schema: "
-                    + json.dumps(json_schema),
-                },
-                {"role": "user", "content": json.dumps(data, ensure_ascii=False)},
-            ],
-            temperature=0,
-            max_tokens=max_tokens,
-            response_format={"type": "json_object", "schema": json_schema},
-        )
-        if result["choices"][0].get("finish_reason") == "length":
-            raise ValueError(
-                "Local model output exceeded its token limit; no partial extraction was accepted."
-            )
-        self.last_usage = result.get("usage", {})
-        return schema.model_validate_json(result["choices"][0]["message"]["content"])
+    async def aclose(self):
+        if self._pool is not None:
+            pool, self._pool = self._pool, None
+            await asyncio.to_thread(pool.shutdown, wait=True, cancel_futures=True)
 
     async def extract_invoice(
         self, document: dict, feedback: dict | None = None
@@ -218,3 +210,48 @@ def compact_observations(value):
     if isinstance(value, list):
         return [compact_observations(item) for item in value]
     return value
+
+
+_NATIVE_MODEL = None
+
+
+def generate_in_worker(path, system, data, json_schema, max_tokens):
+    """All native context operations execute serially inside one spawned process."""
+    global _NATIVE_MODEL
+    if _NATIVE_MODEL is None:
+        from llama_cpp import Llama
+
+        _NATIVE_MODEL = Llama(
+            model_path=path,
+            n_ctx=8192,
+            n_threads=min(4, os.cpu_count() or 2),
+            n_threads_batch=min(4, os.cpu_count() or 2),
+            n_batch=512,
+            verbose=False,
+            seed=42,
+        )
+    _NATIVE_MODEL.reset()
+    result = _NATIVE_MODEL.create_chat_completion(
+        messages=[
+            {
+                "role": "system",
+                "content": BOUNDARY
+                + "\n"
+                + system
+                + "\nJSON schema: "
+                + json.dumps(json_schema),
+            },
+            {"role": "user", "content": json.dumps(data, ensure_ascii=False)},
+        ],
+        temperature=0,
+        max_tokens=max_tokens,
+        response_format={"type": "json_object", "schema": json_schema},
+    )
+    if result["choices"][0].get("finish_reason") == "length":
+        raise ValueError(
+            "Local model output exceeded its token limit; no partial extraction was accepted."
+        )
+    return {
+        "content": result["choices"][0]["message"]["content"],
+        "usage": {**result.get("usage", {}), "worker_pid": os.getpid()},
+    }

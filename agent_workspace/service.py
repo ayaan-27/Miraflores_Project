@@ -140,3 +140,5 @@ class RunService:
             if not task.done():
                 task.cancel()
         await asyncio.gather(*self.tasks.values(), return_exceptions=True)
+        if hasattr(self.model, "aclose"):
+            await self.model.aclose()
