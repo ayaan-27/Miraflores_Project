@@ -4,7 +4,7 @@
 
 LedgerLens turns bank transactions and receipt metadata into an explained exception queue, reviewer decisions, a downloadable review register, and an editable client request. Matching actually runs in the browser. There is no LLM, paid service, API key, backend, or mocked matching response.
 
-**[Open the live prototype](https://ayaan-27.github.io/Miraflores_Project/)** · **[Written submission (PDF)](docs/written-submission.pdf)** · **[Source code](https://github.com/ayaan-27/Miraflores_Project)**
+**[Open the live prototype](https://ayaan-27.github.io/Miraflores_Project/)** · **[Written submission (Word)](docs/written-submission.docx)** · **[PDF](docs/written-submission.pdf)** · **[Source code](https://github.com/ayaan-27/Miraflores_Project)**
 
 Recording your walkthrough? Use the [ready-to-speak video script](docs/video-script.md), including timed narration, screen actions, and follow-up answers.
 
@@ -121,6 +121,7 @@ tests/engine.test.js          deterministic regression tests
 tests/browser_smoke.py        real browser acceptance workflow
 scripts/build.js              static production build
 docs/written-submission.md    editable written submission
+docs/written-submission.docx  standard Word document (Arial 11 pt)
 docs/written-submission.pdf   formatted submission (four pages)
 docs/walkthrough.md           optional outline for your own video
 docs/video-script.md          full spoken script and screen actions
@@ -129,7 +130,7 @@ docs/video-script.md          full spoken script and screen actions
 
 All implementation code and synthetic samples were created for this submission using an AI coding assistant; no prior application code or employer data was reused. The resume informed the problem selection only and is not included in the site or source package. See the written submission for assumptions, tradeoffs, validation, AI disclosure, and next experiments.
 
-To regenerate the already-included PDF (optional, separate from running the product), install `reportlab==4.4.9` in a Python virtual environment and run `python3 scripts/render_submission.py` from the repository root. The script embeds the fonts bundled with ReportLab and inserts four explicit section pages.
+To regenerate the included Word and PDF files (optional, separate from running the product), install `python-docx==1.2.0` in a Python virtual environment and have LibreOffice's `soffice` command available. Run `python3 scripts/render_submission.py` from the repository root. The script creates an Arial 11 pt Word document with US Letter pages, one-inch margins, 1.15 line spacing, and simple black headings, then exports that same document to PDF. Microsoft Word uses Arial when installed; PDF export uses the system's available compatible font. These document tools are not application dependencies.
 
 ## Deploy
 

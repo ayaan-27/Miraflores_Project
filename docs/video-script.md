@@ -21,7 +21,7 @@ I haven't observed GreenGrowth's internal process, so I'm treating that pain poi
 
 ## 0:45–2:00 — How I arrived at the problem
 
-“My background is in applied AI and data systems. My resume includes a document assistant that preserved references to supporting diagrams and an analytics agent spanning multiple databases. The theme that interested me here was traceability: a useful answer needs evidence that someone can inspect.
+"My background is in applied AI and data systems. At Ricoh, I worked on a document assistant that preserved references to supporting diagrams and a text-to-SQL system spanning more than fifty relational databases. That experience motivated my interest in traceability: a useful answer needs evidence that someone can inspect.
 
 I considered three directions: evidence review for accounting, more trustworthy answers across databases, and safer data sharing for model evaluation.
 

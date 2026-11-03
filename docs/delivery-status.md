@@ -2,7 +2,7 @@
 
 - **Working prototype:** https://ayaan-27.github.io/Miraflores_Project/
 - **Source and README:** https://github.com/ayaan-27/Miraflores_Project
-- **Written submission:** `written-submission.pdf` (four pages), with editable `written-submission.md`.
+- **Written submission:** `written-submission.docx` (standard Word document, Arial 11 pt), with a matching four-page `written-submission.pdf` and editable `written-submission.md`.
 - **Video:** not produced, as requested; `video-script.md` provides complete narration, screen actions, and follow-up answers, and `walkthrough.md` provides a short outline.
 
 ## Verification evidence
@@ -21,6 +21,8 @@ Approximately **25 minutes of AI-assisted implementation, writing, testing, and 
 The site and source include only synthetic data. No personal resume document, uploaded brief, secrets, employer code, or client information was published. Accounting workflow needs remain hypotheses, not claims about GreenGrowth CPAs' internal practices.
 
 Follow-up revision: the four-page submission now includes an explicit first-person explanation of the problem-selection reasoning. The video script expands the outline into ready-to-speak content grounded in the supplied resume; personal phrasing should be adapted by the candidate. The original build-time estimate above excludes this follow-up revision.
+
+Editorial revision: the written submission was rewritten throughout in direct first-person language, connecting work at Ricoh and Mphasis to the problem choice. It now uses standard Word formatting rather than the original branded PDF layout. The document-generation helper creates a DOCX and exports the matching PDF through LibreOffice. These revisions do not change the application or its behavior.
 
 ## Reproduction
 
