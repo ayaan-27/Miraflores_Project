@@ -1,3 +1,24 @@
+# LedgerLens v2 — Agentic Invoice Investigator
+
+This development branch adds a four-stage **LangGraph** invoice-investigation workflow using a **local open-weight model**, with no model API key. The existing published GitHub Pages prototype remains v1 while v2 is validated and hosted.
+
+1. Read a real invoice PDF and validate extracted fields against exact source quotes.
+2. Let the investigator choose read-only tools for orders, receiving, vendor records, payment history, and policy.
+3. Recompute financial controls and reject unsupported verifier findings.
+4. Pause for human review, request missing evidence, and resume the same persisted case when a new document arrives.
+
+**Main demonstration:** a $10,000 invoice is held because receiving evidence supports only 80 of 100 units. Add the receiving report for the remaining 20 units, rerun the investigation, and record the reviewer decision. The output includes a PDF workpaper, an evidence-request draft, and the full JSON review record.
+
+**[Agent setup, architecture, boundaries, and hosting instructions](docs/agent-upgrade.md)**
+
+Framework/tools/control/API tests and browser acceptance have passed using explicit model test doubles. Live open-model validation runs separately in the repository's CI environment. Its result must be checked before calling model behavior verified. Current-instance model download is blocked by the pending cloud network setting. A Python/model host is required for the public v2 link; GitHub Pages cannot run this backend.
+
+The v1 submission documents below are retained until the v2 release gates pass; they do not describe v2.
+
+---
+
+## Legacy v1 documentation
+
 # LedgerLens
 
 **Evidence before confidence.** A working month-end evidence review prototype prepared by Ayaan Khan for the MiraFlores case study, with GreenGrowth CPAs as the intended evaluation audience. This is an independent candidate project, not a GreenGrowth product or an integration with its systems.

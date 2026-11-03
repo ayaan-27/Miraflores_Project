@@ -4,3 +4,7 @@ __pycache__/
 artifacts/
 *.log
 .venv/
+.agent-data/
+.pytest_cache/
+*.pyc
+.env

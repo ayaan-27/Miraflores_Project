@@ -1,0 +1,5 @@
+# Tests deliberately do not require model weights or native inference.
+-r requirements-agent-base.txt
+httpx==0.28.1
+pytest==9.0.2
+pytest-asyncio==1.3.0
