@@ -15,7 +15,7 @@ from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from pydantic import BaseModel, Field
 
 from .evidence import CATALOG, MAX_PDF_BYTES, SAMPLES
-from .model import LocalModel, DATA_DIR
+from .model import configured_model, model_ready, DATA_DIR
 from .models import EvidenceResponse, ReviewerDecision
 from .service import RunService
 from .store import Store, now
@@ -27,7 +27,7 @@ class StartRequest(BaseModel):
 
 
 def create_app(*, model=None, data_dir: Path | None = None):
-    runtime_model = model or LocalModel()
+    runtime_model = model or configured_model()
     data_dir = data_dir or DATA_DIR
 
     @asynccontextmanager
@@ -90,9 +90,11 @@ def create_app(*, model=None, data_dir: Path | None = None):
 
     @app.get("/api/health")
     async def health():
+        ready = await model_ready(runtime_model)
         return {
             "status": "ok",
-            "model_ready": runtime_model.available,
+            "model_ready": ready,
+            "model_setup_message": getattr(runtime_model, "readiness_error", "") if not ready else "",
             "mode": runtime_model.mode,
             "model": runtime_model.name,
             "framework": "LangGraph",

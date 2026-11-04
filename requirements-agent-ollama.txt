@@ -1,0 +1,3 @@
+# Ollama is installed separately and serves the model on localhost.
+# No native llama-cpp build or model API credential is required in Python.
+-r requirements-agent-base.txt

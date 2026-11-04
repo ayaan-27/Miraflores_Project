@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     env:
+      LEDGERLENS_MODEL_PROVIDER: llama_cpp
       CC: gcc
       CXX: g++
       CMAKE_BUILD_PARALLEL_LEVEL: '2'

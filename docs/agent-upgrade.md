@@ -19,26 +19,52 @@ The graph has conditional branches, a tool loop, a verifier feedback loop, and a
 
 ## No-key model execution
 
-The runtime uses **Qwen2.5-1.5B-Instruct, Q8 GGUF**, from the official Qwen repository, through `llama-cpp-python` on CPU. No external model API or model API key is needed. The initial download is approximately 2 GB. The download helper obtains the artifact's SHA-256 digest from official repository metadata and verifies the complete download before installing it. TLS and checksum verification remain enabled.
+**Ollama is the recommended local inference provider.** The default model is `qwen2.5:3b`; the LangGraph workflow does not depend on that specific model. Ollama handles model installation and inference, while this application handles the document evidence, tool calls, financial controls, checkpointing, and human decisions. No model API key or paid hosting account is needed to run locally.
 
-The model weights are external dependencies, not included in the source repository. Qwen2.5-1.5B-Instruct uses the Apache 2.0 license; consult its official model card and license before redistribution. The complete synthetic workflow has passed real-model validation in CI; this does not establish general extraction accuracy on unseen invoices. Unit-test doubles are reported separately.
+The local Ollama endpoint receives schema-constrained requests using the same task prompts and Pydantic result types as the native adapter. A model failure does not bypass a control or change a recommendation. The model can be replaced via configuration; every replacement still needs evaluation for extraction, tool selection, and citation quality.
 
-Native inference executes serially inside a dedicated spawned worker process. A native model failure stops the case without taking down the review API; the persisted checkpoint can be retried with a fresh worker. The framework and financial controls remain in the parent API process.
+Model weights are external dependencies and are not included in the source repository. The default Qwen2.5 model uses the Apache 2.0 license; consult its official model card and license before redistribution. Test doubles and actual inference validation are reported separately below.
 
-### Run locally
+### Run with Ollama (recommended)
 
-Use Python 3.12 and a C/C++ compiler. A machine with at least 8 GB of free memory is recommended; CPU execution can take minutes per case. Node is only needed for the legacy v1 workflow.
+Install [Ollama](https://ollama.com/download), start the application, and use Python 3.12. A machine with at least 8 GB RAM is recommended. CPU inference can take several minutes per case; Ollama can use a supported local GPU automatically. Node is only needed for the legacy v1 workflow.
+
+Download the model once:
+
+```bash
+ollama pull qwen2.5:3b
+```
+
+The download is approximately 2 GB. On Linux, or if the desktop app is not serving requests, keep `ollama serve` running in a separate terminal. A message that port 11434 is already in use normally means Ollama is already running.
+
+In the project folder:
 
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
-# On machines with a stale compiler setting, select the installed toolchain:
-CC=gcc CXX=g++ CMAKE_BUILD_PARALLEL_LEVEL=4 pip install -r requirements-agent.txt
-python scripts/download_agent_model.py
-uvicorn agent_workspace.api:app --host 0.0.0.0 --port 8000
+pip install -r requirements-agent-ollama.txt
+python -m uvicorn agent_workspace.api:app --host 127.0.0.1 --port 8000
 ```
 
-Open the local server in your own browser. The health response at `/api/health` reports `model_ready`, execution mode, and model name. A missing model is reported explicitly; there is no silent switch to a scripted model. On Windows, use the equivalent virtual-environment activation and a supported C++ build toolchain.
+On Windows PowerShell, create the environment with `python -m venv .venv` and activate it with `.venv\Scripts\Activate.ps1`. No C++ compiler is needed for this Ollama setup.
+
+Open **http://127.0.0.1:8000** in your browser. Keep Ollama and the Python server running. `/api/health` checks that Ollama is reachable and the selected model is installed; it reports `mode: ollama_local` and `model_ready: true` when ready. A missing prerequisite produces setup instructions and blocks a new investigation. There is no automatic scripted response or provider fallback.
+
+Optional environment settings:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `LEDGERLENS_MODEL_PROVIDER` | `ollama` | Select `ollama` or the optional `llama_cpp` adapter. |
+| `OLLAMA_MODEL` | `qwen2.5:3b` | An installed Ollama model with JSON-schema output support. |
+| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | The Ollama server reached by the Python backend. Keep it local for a local-only demo. |
+
+The browser connects to the Python app, which calls Ollama. It does not need direct access to Ollama or a public Ollama port. The point of the demo is the investigation and resolution workflow; the model is an interchangeable inference component.
+
+### Optional native inference adapter
+
+The earlier **Qwen2.5-1.5B-Instruct Q8 GGUF / llama-cpp-python** adapter remains available. It requires a C/C++ compiler, unlike the recommended setup. It downloads the official artifact and verifies the SHA-256 digest supplied by its repository metadata. Use `requirements-agent.txt`, run `python scripts/download_agent_model.py`, and set `LEDGERLENS_MODEL_PROVIDER=llama_cpp` before starting the same API.
+
+Native inference executes inside a dedicated spawned process; the Ollama adapter uses Ollama's separate model server. Both use the same graph, tools, authoritative controls, and review gates.
 
 The model is loaded on the first invocation. Only two investigations can be queued at once. A run is limited to three invoice-extraction attempts, eight planning decisions per round, two verifier attempts, and three evidence rounds. Receiving extraction has two source-grounding attempts; an invalid reply returns to the waiting checkpoint without erasing prior controls or decisions. PDF text is limited to 12,000 characters to fit the local context budget. Checkpoints and source PDFs are stored under `.agent-data/` by default. Set `LEDGERLENS_DATA_DIR` for another location and `LEDGERLENS_MODEL_PATH` for an already downloaded model file.
 
@@ -60,11 +86,13 @@ python -m pytest -q
 
 The backend tests use explicit model test doubles while executing the actual framework, tools, controls, SQLite checkpoints, and API. They test the hold-to-evidence-to-approval path, bank-change and duplicate holds, source-quote rejection, an unsupported memo returned for revision, attempted control overrides, persistence after reopening the databases, and invalid API inputs. The browser acceptance test is `tests/agent_browser_smoke.py`; its prerequisites are explained in its header. It exercises real PDF upload, source inspection, trace, review, reply, reload/history, and export against a labeled test server. It does not measure live-model accuracy.
 
-The production workflow has no `FixtureModel` fallback. Real-model validation passed; a no-key public host is the remaining release gate. The existing submission files still describe v1 until those gates pass, so they must not be submitted as a description of v2.
+The production workflow has no `FixtureModel` fallback. The Ollama protocol tests check readiness, missing models, actual request schemas, invalid output, and connection failures using an explicitly mocked HTTP transport. They are not inference tests. Actual Ollama validation is run by `.github/workflows/ollama-live.yml`; inspect that run before claiming the Ollama path passed real inference. The existing v1 submission files must not be submitted as a description of v2; use the separately labeled v2 documents.
 
 The initial real-model CI runs downloaded and checksum-verified the official weights and executed actual inference. They caught an unsupported SKU source quote, which motivated the deterministic citation lookup and bounded extraction repair. A subsequent run exposed a native runtime crash, which motivated process isolation and phase-specific diagnostics. These failed runs are not counted as successful model validation. The pinned llama-cpp-python 0.3.16 / NumPy 2.2.6 stack subsequently passed on Ubuntu 24.04: https://github.com/ayaan-27/Miraflores_Project/actions/runs/41565144512. It executed the actual open-weight model, ten tool calls across two rounds, and both review gates in 525.7 seconds, excluding installation and model download. Review decisions in that integration test were automated inputs, not actual human sign-off.
 
 ## Public hosting
+
+The recommended demonstration runs locally with Ollama. Ollama supplies inference; it is not a public host. A public model-backed URL still needs a running machine. Local execution and video recording do not depend on a hosting subscription.
 
 GitHub Pages cannot run the Python graph or model. **Hugging Face now requires a paid plan to create Docker and ordinary Gradio compute Spaces**, even though CPU Basic itself has no hourly hardware charge. Earlier instructions describing a Docker Space as free were incorrect. Do not purchase a plan for this submission. The root `Dockerfile` remains a container deployment option on a suitable host; it is prepared for port 7860 and has not yet been built or deployed as a container in this environment.
 

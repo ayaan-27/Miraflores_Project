@@ -112,14 +112,14 @@ async function connect() {
         ? "Test harness connected"
         : health.model_ready
           ? "Local model connected"
-          : "Local model not installed";
+          : "Local model unavailable";
     $("#connection-dot").classList.toggle("off", !health.model_ready);
     notice(
       health.mode === "test_double"
         ? "TEST HARNESS CONNECTED — model responses are fixtures. This session is for interface testing, not live inference."
         : health.model_ready
           ? ""
-          : "The workspace is connected. Install the official local model weights to run investigations; no API key is required.",
+          : health.model_setup_message || "The workspace is connected. Install the local model to run investigations; no API key is required.",
     );
     $("#case-count").textContent = cases.length;
     historyMode = false;

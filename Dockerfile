@@ -25,5 +25,6 @@ RUN useradd --create-home --uid 1000 user \
     && chown -R user:user /home/user/ledgerlens-data
 USER user
 ENV LEDGERLENS_DATA_DIR=/home/user/ledgerlens-data
+ENV LEDGERLENS_MODEL_PROVIDER=llama_cpp
 EXPOSE 7860
 CMD ["sh", "-c", "python scripts/download_agent_model.py && uvicorn agent_workspace.api:app --host 0.0.0.0 --port 7860"]

@@ -2,6 +2,8 @@
 
 **Hosting correction:** Hugging Face now requires a paid plan to create a Docker Space, even when CPU Basic has no hourly hardware charge. The Docker instructions below are not a free deployment route. Do not purchase a plan for this submission.
 
+The owner's account currently shows both Gradio and Docker as paid-only, so this publication route is blocked for that account. Use the [local Ollama setup](../docs/agent-upgrade.md#run-with-ollama-recommended) for the demonstration instead. Ollama does not by itself provide a public hosted URL.
+
 The documented free exception is up to two **Gradio ZeroGPU** Spaces for personal accounts with a verified email that are more than 30 days old. That option needs a different inference/deployment adapter; this Docker bundle cannot be uploaded unchanged to a Gradio Space. Account eligibility and the adapted runtime must be checked before promising a free public deployment. Ordinary Gradio CPU Spaces also require a paid plan.
 
 Sources: [Spaces overview](https://huggingface.co/docs/hub/spaces-overview#hardware-resources), [ZeroGPU hosting eligibility](https://huggingface.co/docs/hub/spaces-zerogpu#using-and-hosting-zerogpu-spaces). Local execution remains free and requires no model API key; see `docs/agent-upgrade.md`.

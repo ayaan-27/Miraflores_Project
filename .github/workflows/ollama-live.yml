@@ -1,0 +1,64 @@
+name: Validate real Ollama workflow
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/agentic-invoice-investigator]
+    paths:
+      - agent_workspace/**
+      - agent_samples/**
+      - scripts/live_agent_smoke.py
+      - requirements-agent-base.txt
+      - requirements-agent-ollama.txt
+      - .github/workflows/ollama-live.yml
+concurrency:
+  group: real-ollama-model
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  ollama-integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      LEDGERLENS_MODEL_PROVIDER: ollama
+      OLLAMA_MODEL: qwen2.5:3b
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-agent*.txt
+      - name: Install framework and HTTP dependencies without a native Python inference build
+        run: pip install -r requirements-agent-ollama.txt
+      - name: Start the official Ollama server locally
+        run: |
+          docker run --detach --name ledgerlens-ollama --publish 127.0.0.1:11434:11434 ollama/ollama:0.6.8
+          python - <<'PY'
+          import time
+          from urllib.error import URLError
+          from urllib.request import urlopen
+          for attempt in range(60):
+              try:
+                  with urlopen('http://127.0.0.1:11434/api/version', timeout=2) as response:
+                      print(response.read().decode())
+                      break
+              except URLError:
+                  time.sleep(0.5)
+          else:
+              raise SystemExit('Ollama did not start.')
+          PY
+      - name: Pull the public Qwen model (no inference API credential)
+        run: docker exec ledgerlens-ollama ollama pull "$OLLAMA_MODEL"
+      - name: Exercise actual Ollama inference through the four-stage LangGraph workflow
+        run: python scripts/run_live_agent_check.py
+      - name: Retain actual run evidence (no model weights)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ollama-agent-validation
+          path: artifacts/live-agent/
+          if-no-files-found: ignore
+      - name: Ollama server diagnostics
+        if: failure()
+        run: docker logs --tail 50 ledgerlens-ollama

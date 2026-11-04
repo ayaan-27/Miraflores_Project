@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import aiosqlite
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from agent_workspace.evidence import SAMPLES
-from agent_workspace.model import LocalModel
+from agent_workspace.model import configured_model, model_ready
 from agent_workspace.models import ReviewerDecision
 from agent_workspace.service import RunService
 from agent_workspace.store import Store
@@ -44,9 +44,9 @@ async def wait(service, identifier, desired, timeout=900):
 
 
 async def main():
-    model = LocalModel()
-    if not model.available:
-        raise AssertionError('Install the native runtime and verified official model weights first.')
+    model = configured_model()
+    if not await model_ready(model):
+        raise AssertionError(getattr(model, 'readiness_error', '') or 'Install the native runtime and verified official model weights first.')
     directory = Path('artifacts/live-agent')
     directory.mkdir(parents=True, exist_ok=True)
     started = time.monotonic()
@@ -78,7 +78,7 @@ async def main():
                     await service.review(run,ReviewerDecision(action='approve',reviewer='Automated integration test',note='Integration-test action: exercise the approval gate after all checks pass. This is not an actual human sign-off.'))
                     final = await wait(service,run,'completed')
                     assert final['completion']['result']=='release_recommended'
-                    assert final['mode']=='local_llm'
+                    assert final['mode'] in {'local_llm', 'ollama_local'}
                     (directory/'completed-review.json').write_text(json.dumps(final,indent=2))
                     (directory/'workpaper.pdf').write_bytes(render_workpaper(final))
                     annotation('notice','Real-model workflow passed',f'Actual open-weight CPU inference, LangGraph tool/evidence loops, and both review gates completed in {time.monotonic()-started:.1f}s. Reviewer actions were automated test inputs. No payment was initiated.')

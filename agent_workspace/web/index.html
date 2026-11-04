@@ -248,12 +248,12 @@
       <div class="setup-box">
         <strong>Local setup</strong>
         <pre>
-python3 -m venv .venv&#10;. .venv/bin/activate&#10;pip install -r requirements-agent.txt&#10;python scripts/download_agent_model.py&#10;uvicorn agent_workspace.api:app --port 8000</pre
+ollama pull qwen2.5:3b&#10;python3 -m venv .venv&#10;. .venv/bin/activate&#10;pip install -r requirements-agent-ollama.txt&#10;uvicorn agent_workspace.api:app --port 8000</pre
         >
         <p>
-          The model download is approximately 2 GB and is verified against the
-          official repository's SHA-256 digest. First-run inference takes longer
-          while the model loads.
+          Install and start Ollama first. Its model download is approximately
+          2 GB. Keep Ollama and the Python server running. The workflow uses
+          the model locally; no inference API key is required.
         </p>
       </div>
     </dialog>

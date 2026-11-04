@@ -2,6 +2,8 @@
 
 This development branch adds a four-stage **LangGraph** invoice-investigation workflow using a **local open-weight model**, with no model API key. The existing published GitHub Pages prototype remains v1 while v2 is validated and hosted.
 
+The recommended setup uses **Ollama** with `qwen2.5:3b`. The model is replaceable; the product value is the evidence investigation, independently computed controls, human review, and resumption of the same case when new evidence arrives.
+
 1. Read a real invoice PDF and validate extracted fields against exact source quotes.
 2. Let the investigator choose read-only tools for orders, receiving, vendor records, payment history, and policy.
 3. Recompute financial controls and reject unsupported verifier findings.
@@ -10,6 +12,8 @@ This development branch adds a four-stage **LangGraph** invoice-investigation wo
 **Main demonstration:** a $10,000 invoice is held because receiving evidence supports only 80 of 100 units. Add the receiving report for the remaining 20 units, rerun the investigation, and record the reviewer decision. The output includes a PDF workpaper, an evidence-request draft, and the full JSON review record.
 
 **[Agent setup, architecture, boundaries, and hosting instructions](docs/agent-upgrade.md)**
+
+**[Run v2 locally with Ollama](docs/agent-upgrade.md#run-with-ollama-recommended)**. No API key or Hugging Face hosting plan is required. LangGraph, tools, financial controls, and human review are independent of the inference provider.
 
 Framework/tools/control/API tests and browser acceptance pass with explicit test doubles. The complete **real-model integration also passed** on the pinned CPU stack: actual PDF extraction, five tool calls per round, the initial hold, a new receiving PDF, resumption of the same case, and both review gates. [Validation evidence](https://github.com/ayaan-27/Miraflores_Project/actions/runs/41565144512). Automated reviewer inputs in that test are labeled as such. Public hosting remains pending; GitHub Pages cannot run this Python/model backend.
 

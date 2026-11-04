@@ -6,6 +6,7 @@ from langgraph.types import Command
 
 from .graph import build_graph
 from .models import ReviewerDecision
+from .model import model_ready
 
 
 class RunService:
@@ -19,9 +20,10 @@ class RunService:
         return {"configurable": {"thread_id": run_id}, "recursion_limit": 100}
 
     async def start(self, document: dict, case_id=None, synthetic=False):
-        if not self.model.available:
+        if not await model_ready(self.model):
             raise ValueError(
-                "The local model is not installed. Download the official open weights before starting a run."
+                getattr(self.model, "readiness_error", "")
+                or "The local model is not installed. Download the official open weights before starting a run."
             )
         if sum(not task.done() for task in self.tasks.values()) >= 2:
             raise ValueError(
