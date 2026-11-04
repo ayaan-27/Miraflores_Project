@@ -98,7 +98,7 @@ class Model:
                         path = download_model()
                     except Exception as error:
                         raise ValueError("The model download could not be verified or completed. Check server connectivity, then retry. No investigation result has been fabricated.") from error
-                    self.native = Llama(model_path=str(path), n_ctx=4096, n_threads=2, n_threads_batch=2, n_batch=128, verbose=False, seed=42)
+                    self.native = Llama(model_path=str(path), n_ctx=3072, n_threads=2, n_threads_batch=2, n_batch=96, verbose=False, seed=42)
                 self.native.reset()
                 result = self.native.create_chat_completion(messages=messages, temperature=0, max_tokens=260 if schema is Choice else 320, response_format={"type": "json_object", "schema": shape})
                 if result["choices"][0].get("finish_reason") == "length":

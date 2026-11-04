@@ -27,17 +27,53 @@ jobs:
           cache-dependency-path: requirements*.txt
       - run: pip install -r requirements.txt pytest==8.4.2
       - name: Run actual graph, accounting controls, PDF, and persistence tests with explicit test planner
-        run: python -m pytest variance_tests -q
+        run: python -m pytest -c variance_tests/pytest.ini -q
       - uses: actions/cache@v4
         with:
           path: /tmp/month-end-review/models
           key: qwen2.5-0.5b-instruct-q4km-variance-v1
       - name: Run real small-model investigation and evidence-resume loop
         run: python -u scripts/live_variance_check.py
+      - name: Install browser acceptance tools
+        run: |
+          pip install playwright==1.62.0
+          python -m playwright install --with-deps chromium
+      - name: Start the actual Streamlit application
+        run: |
+          python -m streamlit run streamlit_app.py --server.address 127.0.0.1 --server.port 8501 > /tmp/variance-streamlit.log 2>&1 &
+          echo $! > /tmp/variance-streamlit.pid
+          python - <<'PY'
+          from urllib.request import urlopen
+          from urllib.error import URLError
+          import time
+          for _ in range(60):
+              try:
+                  if urlopen('http://127.0.0.1:8501/_stcore/health', timeout=2).status == 200: break
+              except URLError: time.sleep(0.5)
+          else: raise SystemExit('Streamlit did not start')
+          PY
+      - name: Exercise real model inference through the actual browser interface
+        run: python -u variance_tests/browser_smoke.py
+      - name: Record application process memory and diagnostics
+        if: always()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          marker=Path('/tmp/variance-streamlit.pid')
+          if marker.exists():
+              status=Path('/proc')/marker.read_text().strip()/'status'
+              if status.exists():
+                  fields={line.split(':')[0]:line.split(':',1)[1].strip() for line in status.read_text().splitlines() if ':' in line}
+                  print('::notice title=Streamlit memory::'+json.dumps({k:fields.get(k) for k in ['VmRSS','VmHWM']}))
+          PY
+          cat /tmp/variance-streamlit.log || true
       - name: Retain measured model and workflow evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: variance-validation
-          path: artifacts/variance-live/
+          path: |
+            artifacts/variance-live/
+            artifacts/variance-browser/
           if-no-files-found: ignore
