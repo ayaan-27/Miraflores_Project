@@ -1,4 +1,2 @@
 *.pdf binary
 *.docx binary
-# Bundled third-party strings contain intentional literal whitespace.
-submission/OPEN_THIS.html -whitespace

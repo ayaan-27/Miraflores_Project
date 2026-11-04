@@ -82,7 +82,7 @@ Approval: Checked the agreement, allocation schedule, and balanced proposed jour
 
 ## Recording reminders — do not read aloud
 
-- Use **Back** to return to the account overview while keeping a saved review, then **Resume review** to continue. Use **Reset sample** for a fresh take; refreshing preserves saved progress.
+- Use **Reset sample** for a fresh take; refreshing preserves saved progress.
 - Let the rejection message and proposed journal remain visible briefly. You do not need to read every check or source field.
 - Download the PDF without opening another window during the recording; opening it is optional if you have time.
 - The exact duration depends on your delivery and clicks. If a rehearsal runs long, omit the sentence beginning “There's also a journal CSV” and shorten the final paragraph before speaking faster.
