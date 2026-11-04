@@ -16,6 +16,14 @@ with sync_playwright() as p:
     expect(page.locator('#investigate')).to_be_visible();page.locator('#investigate').click()
     expect(page.locator('#approve')).to_be_disabled()
     page.locator('#reviewer').fill('Test reviewer');page.locator('#note').fill('Please supply service period support.');page.locator('#request_evidence').click()
+    # Navigation must preserve an in-progress evidence request, including on reload.
+    page.locator('#back').click()
+    expect(page.locator('#investigate')).to_have_text('Resume review')
+    expect(page.locator('#evidence-upload')).to_have_count(0)
+    page.reload();expect(page.locator('#investigate')).to_have_text('Resume review')
+    page.locator('#investigate').click()
+    expect(page.locator('#content')).to_contain_text('Round 1 · awaiting evidence')
+    expect(page.locator('#content')).to_contain_text('Please supply service period support.')
     page.locator('#invalid-evidence').click();expect(page.locator('#message')).to_contain_text('waiting for AGR-SW-2026')
     # A JSON upload exercises the real input path.
     page.locator('#evidence-upload').set_input_files(str(ROOT/'submission/software-agreement.json'))
@@ -28,7 +36,8 @@ with sync_playwright() as p:
         with page.expect_download() as event:page.locator('#'+button).click()
         dl=event.value;dest=artifacts/('submission-'+dl.suggested_filename);dl.save_as(dest)
         assert dest.suffix==suffix and dest.stat().st_size>100
-        if suffix=='.json':assert json.loads(dest.read_text())['analysis']['adjustment_cents']==2200000
+        if suffix=='.json':
+            saved=json.loads(dest.read_text());assert saved['analysis']['adjustment_cents']==2200000 and len(saved['history'])==2
         if suffix=='.pdf':assert dest.read_bytes().startswith(b'%PDF')
     page.locator('#ledger-upload').set_input_files(str(ROOT/'submission/invalid-ledger.csv'))
     expect(page.locator('#message')).to_contain_text('duplicate');expect(page.locator('#content')).to_contain_text('Workpaper approved')

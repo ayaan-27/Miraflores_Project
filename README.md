@@ -15,7 +15,7 @@ For offline use, download [OPEN_THIS.html](submission/OPEN_THIS.html) and open t
 5. Download the PDF workpaper, proposed-journal CSV, and review JSON. Nothing is posted to an accounting system.
 6. Investigate **Payroll**: the supported October bonus requires no adjustment. **Professional fees** needs [consulting-agreement.json](submission/consulting-agreement.json) and also produces no adjustment.
 
-Import [invalid-ledger.csv](submission/invalid-ledger.csv) to see a duplicate transaction ID rejected without replacing the current case. [ledger.csv](submission/ledger.csv) is the valid sample. **Reset sample** clears all decisions.
+Import [invalid-ledger.csv](submission/invalid-ledger.csv) to see a duplicate transaction ID rejected without replacing the current case. [ledger.csv](submission/ledger.csv) is the valid sample. Use **Back** to return to the account overview without clearing your review, then **Resume review** to continue. Refresh preserves your chosen view and saved decisions. **Reset sample** clears all decisions for a fresh demonstration.
 
 Review data stays in this browser's local storage when available. Storage is device/browser specific, editable, and not an authenticated audit log. Export JSON to retain a copy. Restricted or private browser storage may not persist on reload.
 
