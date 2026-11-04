@@ -1,9 +1,9 @@
 {
-  "name": "ledgerlens",
-  "version": "2.1.0",
+  "name": "month-end-review",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
-  "description": "Invoice evidence workflow with a public browser demo and local LangGraph/Ollama inference",
+  "description": "Self-contained month-end variance and evidence review workflow",
   "scripts": {
     "start": "python3 -m http.server 4173 --bind 127.0.0.1 --directory dist",
     "test": "node --test tests/*.test.js",

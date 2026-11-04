@@ -1,41 +1,17 @@
-name: Validate notebook demo launcher
+name: Validate standalone notebook
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['scripts/notebook_demo.py', 'scripts/check_notebook_demo.py', 'notebooks/**', 'variance_tests/test_notebook_launcher.py', '.github/workflows/notebook-demo.yml']
+    paths: ['scripts/build_submission_notebook.py', 'submission/workflow.py', 'submission/data.json', 'notebooks/**', '.github/workflows/notebook-demo.yml']
 permissions:
   contents: read
-concurrency:
-  group: notebook-launcher
-  cancel-in-progress: true
 jobs:
-  temporary-demo-check:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
+  notebook:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-          cache-dependency-path: requirements-variance-lock.txt
-      - name: Install browser test tools
-        run: |
-          pip install playwright==1.62.0
-          python -m playwright install --with-deps chromium
-      - name: Run the actual notebook launcher and verify its public UI
-        run: python -u scripts/check_notebook_demo.py
-      - name: Retain launcher evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: notebook-launcher-validation
-          path: artifacts/notebook-launcher/
-          if-no-files-found: ignore
-      - name: Diagnostics
-        if: failure()
-        run: |
-          tail -50 /tmp/month-end-notebook-validation/setup.log || true
-          tail -50 /tmp/month-end-notebook-validation/streamlit.log || true
-          tail -50 /tmp/month-end-notebook-validation/tunnel.log || true
+      - run: python scripts/build_submission_notebook.py

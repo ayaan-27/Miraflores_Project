@@ -1,4 +1,4 @@
-name: Deploy LedgerLens to Pages
+name: Publish month-end review
 on:
   workflow_dispatch:
   push:
@@ -20,10 +20,21 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: '24'
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Execute standalone notebook with no extra Python packages
+        run: python scripts/build_submission_notebook.py
+      - name: Install browser acceptance tools
+        run: |
+          pip install playwright==1.62.0
+          python -m playwright install --with-deps chromium
+      - name: Test offline file with no external asset requests
+        run: python tests/submission_browser.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -31,26 +42,17 @@ jobs:
       - name: Publish
         id: deployment
         uses: actions/deploy-pages@v4
-      - name: Verify public prototype
+      - name: Verify exact public prototype
         env:
           SITE_URL: ${{ steps.deployment.outputs.page_url }}
         run: node scripts/verify_site.js
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install browser acceptance tools
-        run: |
-          pip install playwright==1.62.0
-          python -m playwright install --with-deps chromium
-      - name: Exercise the actual public prototype
+      - name: Exercise public prototype
         env:
-          LEDGERLENS_AGENT_TEST_URL: ${{ steps.deployment.outputs.page_url }}
-          LEDGERLENS_AGENT_TEST_MODE: guided_demo
-        run: python tests/agent_browser_smoke.py
-      - name: Retain public browser screenshots
+          SUBMISSION_TEST_URL: ${{ steps.deployment.outputs.page_url }}
+        run: python tests/submission_browser.py
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: public-workflow-browser-check
-          path: artifacts/agent-test-*.png
+          name: month-end-review-validation
+          path: artifacts/submission-*
           if-no-files-found: ignore

@@ -1,0 +1,61 @@
+{
+  "id": "AGR-FEE-2026",
+  "filename": "consulting-agreement.pdf",
+  "kind": "Service agreement",
+  "pages": [
+    "SAMPLE DATA - FICTIONAL ENTITY AND RECORDS\nService agreement\nDocument ID: AGR-FEE-2026\nEntity: Northbank Studio\nDocument type: Service agreement\nVendor: Northline Advisory\nInvoice ID: INV-FEE-108\nAmount: 8000.00\nCurrency: USD\nService start: 2026-10-01\nService end: 2026-10-31\nAuthorized: Yes\n"
+  ],
+  "fields": {
+    "Document ID": {
+      "value": "AGR-FEE-2026",
+      "page": 1,
+      "quote": "Document ID: AGR-FEE-2026"
+    },
+    "Entity": {
+      "value": "Northbank Studio",
+      "page": 1,
+      "quote": "Entity: Northbank Studio"
+    },
+    "Document type": {
+      "value": "Service agreement",
+      "page": 1,
+      "quote": "Document type: Service agreement"
+    },
+    "Vendor": {
+      "value": "Northline Advisory",
+      "page": 1,
+      "quote": "Vendor: Northline Advisory"
+    },
+    "Invoice ID": {
+      "value": "INV-FEE-108",
+      "page": 1,
+      "quote": "Invoice ID: INV-FEE-108"
+    },
+    "Amount": {
+      "value": "8000.00",
+      "page": 1,
+      "quote": "Amount: 8000.00"
+    },
+    "Currency": {
+      "value": "USD",
+      "page": 1,
+      "quote": "Currency: USD"
+    },
+    "Service start": {
+      "value": "2026-10-01",
+      "page": 1,
+      "quote": "Service start: 2026-10-01"
+    },
+    "Service end": {
+      "value": "2026-10-31",
+      "page": 1,
+      "quote": "Service end: 2026-10-31"
+    },
+    "Authorized": {
+      "value": "Yes",
+      "page": 1,
+      "quote": "Authorized: Yes"
+    }
+  },
+  "sha256": "38565d2176be06e7b0630d161d8fdea7bf0c4f46f9f86461ef6b917d17a085ee"
+}

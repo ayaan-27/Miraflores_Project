@@ -1,0 +1,393 @@
+{
+  "account_code": "6100",
+  "status": "approved",
+  "round": 2,
+  "history": [
+    {
+      "action": "request_evidence",
+      "reviewer": "Demo reviewer (automated walkthrough)",
+      "note": "Please supply the authorized service agreement for this invoice.",
+      "round": 1
+    },
+    {
+      "action": "approve",
+      "reviewer": "Demo reviewer (automated walkthrough)",
+      "note": "Service dates and policy checked; approve workpaper only. No posting.",
+      "round": 2
+    }
+  ],
+  "analysis": {
+    "outcome": "adjustment_proposed",
+    "approval_allowed": true,
+    "account": {
+      "code": "6100",
+      "name": "Software",
+      "previous_cents": 200000,
+      "current_cents": 2600000,
+      "change_cents": 2400000,
+      "change_ratio": 12.0,
+      "material": true
+    },
+    "findings": [
+      {
+        "name": "Posting uniqueness",
+        "passed": true,
+        "detail": "No repeated document reference in the selected period.",
+        "source_ids": [
+          "LEDGER-4785ef1719-6100"
+        ]
+      },
+      {
+        "name": "Variance bridge",
+        "passed": true,
+        "detail": "One additional posting reconciles the full account movement.",
+        "source_ids": [
+          "LEDGER-4785ef1719-6100"
+        ]
+      },
+      {
+        "name": "Posting support",
+        "passed": true,
+        "detail": "Source entity, vendor, currency, and amount agree with the posting.",
+        "source_ids": [
+          "LEDGER-4785ef1719-6100",
+          "INV-SW-102"
+        ]
+      },
+      {
+        "name": "Agreement match",
+        "passed": true,
+        "detail": "The agreement matches the posting and contains the sample authorization field.",
+        "source_ids": [
+          "AGR-SW-2026",
+          "INV-SW-102"
+        ]
+      },
+      {
+        "name": "Service allocation",
+        "passed": true,
+        "detail": "12 full calendar month(s); USD 2000.00 relates to October and USD 22000.00 to later periods. The supplied policy threshold is USD 1200.00.",
+        "source_ids": [
+          "AGR-SW-2026",
+          "POL-CLOSE"
+        ]
+      }
+    ],
+    "journal": [
+      {
+        "account": "1500",
+        "name": "Prepaid services",
+        "debit_cents": 2200000,
+        "credit_cents": 0
+      },
+      {
+        "account": "6100",
+        "name": "Software",
+        "debit_cents": 0,
+        "credit_cents": 2200000
+      }
+    ],
+    "allocation": [
+      {
+        "period": "2026-10",
+        "expense_cents": 200000
+      },
+      {
+        "period": "2026-11",
+        "expense_cents": 200000
+      },
+      {
+        "period": "2026-12",
+        "expense_cents": 200000
+      },
+      {
+        "period": "2027-01",
+        "expense_cents": 200000
+      },
+      {
+        "period": "2027-02",
+        "expense_cents": 200000
+      },
+      {
+        "period": "2027-03",
+        "expense_cents": 200000
+      },
+      {
+        "period": "2027-04",
+        "expense_cents": 200000
+      },
+      {
+        "period": "2027-05",
+        "expense_cents": 200000
+      },
+      {
+        "period": "2027-06",
+        "expense_cents": 200000
+      },
+      {
+        "period": "2027-07",
+        "expense_cents": 200000
+      },
+      {
+        "period": "2027-08",
+        "expense_cents": 200000
+      },
+      {
+        "period": "2027-09",
+        "expense_cents": 200000
+      }
+    ],
+    "adjustment_cents": 2200000,
+    "adjusted_cents": 400000,
+    "missing_document_id": null,
+    "driver": {
+      "id": "SW-O3",
+      "date": "2026-10-25",
+      "account": "6100",
+      "vendor": "OrbitCloud",
+      "description": "Annual workspace license renewal",
+      "currency": "USD",
+      "document_id": "INV-SW-102",
+      "amount_cents": 2400000
+    },
+    "sources": {
+      "LEDGER-4785ef1719-6100": {
+        "id": "LEDGER-4785ef1719-6100",
+        "kind": "Ledger query",
+        "title": "September and October expense entries",
+        "ledger_sha256": "4785ef171962fae5e40fa923d9afde3f2325aab56bdcd961fea110fae8ba1249",
+        "rows": [
+          {
+            "id": "SW-S1",
+            "date": "2026-09-25",
+            "account": "6100",
+            "vendor": "OrbitCloud",
+            "description": "Monthly workspace seats",
+            "currency": "USD",
+            "document_id": "SEATS-S",
+            "amount_cents": 120000
+          },
+          {
+            "id": "SW-S2",
+            "date": "2026-09-25",
+            "account": "6100",
+            "vendor": "DevTools",
+            "description": "Monthly developer tools",
+            "currency": "USD",
+            "document_id": "TOOLS-S",
+            "amount_cents": 80000
+          },
+          {
+            "id": "SW-O3",
+            "date": "2026-10-25",
+            "account": "6100",
+            "vendor": "OrbitCloud",
+            "description": "Annual workspace license renewal",
+            "currency": "USD",
+            "document_id": "INV-SW-102",
+            "amount_cents": 2400000
+          },
+          {
+            "id": "SW-O1",
+            "date": "2026-10-25",
+            "account": "6100",
+            "vendor": "OrbitCloud",
+            "description": "Monthly workspace seats",
+            "currency": "USD",
+            "document_id": "SEATS-O",
+            "amount_cents": 120000
+          },
+          {
+            "id": "SW-O2",
+            "date": "2026-10-25",
+            "account": "6100",
+            "vendor": "DevTools",
+            "description": "Monthly developer tools",
+            "currency": "USD",
+            "document_id": "TOOLS-O",
+            "amount_cents": 80000
+          }
+        ]
+      },
+      "INV-SW-102": {
+        "id": "INV-SW-102",
+        "filename": "software-invoice.pdf",
+        "kind": "Invoice",
+        "pages": [
+          "SAMPLE DATA - FICTIONAL ENTITY AND RECORDS\nInvoice\nDocument ID: INV-SW-102\nEntity: Northbank Studio\nDocument type: Invoice\nVendor: OrbitCloud\nInvoice date: 2026-10-03\nAmount: 24000.00\nCurrency: USD\nDescription: Annual workspace license renewal\nAgreement ID: AGR-SW-2026\n"
+        ],
+        "fields": {
+          "Document ID": {
+            "value": "INV-SW-102",
+            "page": 1,
+            "quote": "Document ID: INV-SW-102"
+          },
+          "Entity": {
+            "value": "Northbank Studio",
+            "page": 1,
+            "quote": "Entity: Northbank Studio"
+          },
+          "Document type": {
+            "value": "Invoice",
+            "page": 1,
+            "quote": "Document type: Invoice"
+          },
+          "Vendor": {
+            "value": "OrbitCloud",
+            "page": 1,
+            "quote": "Vendor: OrbitCloud"
+          },
+          "Invoice date": {
+            "value": "2026-10-03",
+            "page": 1,
+            "quote": "Invoice date: 2026-10-03"
+          },
+          "Amount": {
+            "value": "24000.00",
+            "page": 1,
+            "quote": "Amount: 24000.00"
+          },
+          "Currency": {
+            "value": "USD",
+            "page": 1,
+            "quote": "Currency: USD"
+          },
+          "Description": {
+            "value": "Annual workspace license renewal",
+            "page": 1,
+            "quote": "Description: Annual workspace license renewal"
+          },
+          "Agreement ID": {
+            "value": "AGR-SW-2026",
+            "page": 1,
+            "quote": "Agreement ID: AGR-SW-2026"
+          }
+        },
+        "sha256": "2c6b300e88f4f4101b8519b8f57de11bb50c327daf0d8907b0cb5aabc1c0f0eb"
+      },
+      "POL-CLOSE": {
+        "id": "POL-CLOSE",
+        "filename": "close-policy.pdf",
+        "kind": "Close policy",
+        "pages": [
+          "SAMPLE DATA - FICTIONAL ENTITY AND RECORDS\nClose policy\nDocument ID: POL-CLOSE\nEntity: Northbank Studio\nDocument type: Close policy\nBasis: Accrual\nPrepaid threshold: 1200.00\nAllocation: Equal monthly allocation over full calendar months\nPartial months: Manual review required\nBonuses: Expense in the earned period with approval\nDuplicate postings: Hold for investigation\nJournal posting: Human approval required; no automatic posting\n"
+        ],
+        "fields": {
+          "Document ID": {
+            "value": "POL-CLOSE",
+            "page": 1,
+            "quote": "Document ID: POL-CLOSE"
+          },
+          "Entity": {
+            "value": "Northbank Studio",
+            "page": 1,
+            "quote": "Entity: Northbank Studio"
+          },
+          "Document type": {
+            "value": "Close policy",
+            "page": 1,
+            "quote": "Document type: Close policy"
+          },
+          "Basis": {
+            "value": "Accrual",
+            "page": 1,
+            "quote": "Basis: Accrual"
+          },
+          "Prepaid threshold": {
+            "value": "1200.00",
+            "page": 1,
+            "quote": "Prepaid threshold: 1200.00"
+          },
+          "Allocation": {
+            "value": "Equal monthly allocation over full calendar months",
+            "page": 1,
+            "quote": "Allocation: Equal monthly allocation over full calendar months"
+          },
+          "Partial months": {
+            "value": "Manual review required",
+            "page": 1,
+            "quote": "Partial months: Manual review required"
+          },
+          "Bonuses": {
+            "value": "Expense in the earned period with approval",
+            "page": 1,
+            "quote": "Bonuses: Expense in the earned period with approval"
+          },
+          "Duplicate postings": {
+            "value": "Hold for investigation",
+            "page": 1,
+            "quote": "Duplicate postings: Hold for investigation"
+          },
+          "Journal posting": {
+            "value": "Human approval required; no automatic posting",
+            "page": 1,
+            "quote": "Journal posting: Human approval required; no automatic posting"
+          }
+        },
+        "sha256": "675dd968363ce0ee24b3f1be2b4e3d5b92a9be0a572dbd95795b840f56fbe38d"
+      },
+      "AGR-SW-2026": {
+        "id": "AGR-SW-2026",
+        "filename": "software-contract.pdf",
+        "kind": "Service agreement",
+        "pages": [
+          "SAMPLE DATA - FICTIONAL ENTITY AND RECORDS\nService agreement\nDocument ID: AGR-SW-2026\nEntity: Northbank Studio\nDocument type: Service agreement\nVendor: OrbitCloud\nInvoice ID: INV-SW-102\nAmount: 24000.00\nCurrency: USD\nService start: 2026-10-01\nService end: 2027-09-30\nAuthorized: Yes\n"
+        ],
+        "fields": {
+          "Document ID": {
+            "value": "AGR-SW-2026",
+            "page": 1,
+            "quote": "Document ID: AGR-SW-2026"
+          },
+          "Entity": {
+            "value": "Northbank Studio",
+            "page": 1,
+            "quote": "Entity: Northbank Studio"
+          },
+          "Document type": {
+            "value": "Service agreement",
+            "page": 1,
+            "quote": "Document type: Service agreement"
+          },
+          "Vendor": {
+            "value": "OrbitCloud",
+            "page": 1,
+            "quote": "Vendor: OrbitCloud"
+          },
+          "Invoice ID": {
+            "value": "INV-SW-102",
+            "page": 1,
+            "quote": "Invoice ID: INV-SW-102"
+          },
+          "Amount": {
+            "value": "24000.00",
+            "page": 1,
+            "quote": "Amount: 24000.00"
+          },
+          "Currency": {
+            "value": "USD",
+            "page": 1,
+            "quote": "Currency: USD"
+          },
+          "Service start": {
+            "value": "2026-10-01",
+            "page": 1,
+            "quote": "Service start: 2026-10-01"
+          },
+          "Service end": {
+            "value": "2027-09-30",
+            "page": 1,
+            "quote": "Service end: 2027-09-30"
+          },
+          "Authorized": {
+            "value": "Yes",
+            "page": 1,
+            "quote": "Authorized: Yes"
+          }
+        },
+        "sha256": "1ac701e045fae3b2926ee6e138f0ba55c4d6b58017d4a8228e0012091ab0bfdb"
+      }
+    }
+  },
+  "journal_posted": false
+}

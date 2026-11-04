@@ -1,0 +1,61 @@
+{
+  "id": "AGR-SW-2026",
+  "filename": "software-contract.pdf",
+  "kind": "Service agreement",
+  "pages": [
+    "SAMPLE DATA - FICTIONAL ENTITY AND RECORDS\nService agreement\nDocument ID: AGR-SW-2026\nEntity: Northbank Studio\nDocument type: Service agreement\nVendor: OrbitCloud\nInvoice ID: INV-SW-102\nAmount: 24000.00\nCurrency: USD\nService start: 2026-10-01\nService end: 2027-09-30\nAuthorized: Yes\n"
+  ],
+  "fields": {
+    "Document ID": {
+      "value": "AGR-SW-2026",
+      "page": 1,
+      "quote": "Document ID: AGR-SW-2026"
+    },
+    "Entity": {
+      "value": "Northbank Studio",
+      "page": 1,
+      "quote": "Entity: Northbank Studio"
+    },
+    "Document type": {
+      "value": "Service agreement",
+      "page": 1,
+      "quote": "Document type: Service agreement"
+    },
+    "Vendor": {
+      "value": "OrbitCloud",
+      "page": 1,
+      "quote": "Vendor: OrbitCloud"
+    },
+    "Invoice ID": {
+      "value": "INV-SW-102",
+      "page": 1,
+      "quote": "Invoice ID: INV-SW-102"
+    },
+    "Amount": {
+      "value": "24000.00",
+      "page": 1,
+      "quote": "Amount: 24000.00"
+    },
+    "Currency": {
+      "value": "USD",
+      "page": 1,
+      "quote": "Currency: USD"
+    },
+    "Service start": {
+      "value": "2026-10-01",
+      "page": 1,
+      "quote": "Service start: 2026-10-01"
+    },
+    "Service end": {
+      "value": "2027-09-30",
+      "page": 1,
+      "quote": "Service end: 2027-09-30"
+    },
+    "Authorized": {
+      "value": "Yes",
+      "page": 1,
+      "quote": "Authorized: Yes"
+    }
+  },
+  "sha256": "1ac701e045fae3b2926ee6e138f0ba55c4d6b58017d4a8228e0012091ab0bfdb"
+}
