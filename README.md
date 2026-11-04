@@ -66,6 +66,8 @@ The workflow/control tests and Streamlit AppTest checks use an explicit injected
 
 The complete current build passed [actual-model and Streamlit browser validation](https://github.com/ayaan-27/Miraflores_Project/actions/runs/41755341841). The model check completed the missing-contract loop, proposed $22,000, produced the $4,000 adjusted expense, and explained the bonus without an adjustment. It made 21 real model calls in 132.1 seconds excluding setup/download, with 749.6 MiB peak process RSS. A separate browser exercised `streamlit_app.py` with the actual model, wrong/correct PDF uploads, approval, retained reload, invalid CSV rejection, and all exports. The Streamlit process reached 939.0 MiB peak RSS in that run. These are small synthetic CPU checks, not production accuracy or hosted-performance claims. Current [validation workflow](https://github.com/ayaan-27/Miraflores_Project/actions/workflows/variance.yml).
 
+The [one-cell notebook launcher also passed](https://github.com/ayaan-27/Miraflores_Project/actions/runs/41901554396) a fresh isolated install, verified source/binary downloads, Streamlit startup, and a real public HTTPS/browser-WebSocket check on Linux Python 3.12. The short-lived CI tunnel was closed after that test; the notebook creates a new link when it is run.
+
 For browser checks install Playwright 1.62.0 and Chromium, serve the app, and run `python variance_tests/browser_smoke.py`. The separate `variance_tests/serve_fixture.py` is only an explicit interface-test harness; do not deploy it. The JSON output identifies its test planner when used. CI uses `streamlit_app.py` with the actual model.
 
 ## Storage and configuration

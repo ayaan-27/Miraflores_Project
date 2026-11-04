@@ -1,7 +1,9 @@
 # Month-End Variance Investigator
 **Ayaan Khan | MiraFlores case study | Prepared for GreenGrowth CPAs**
 
-**Review copy:** The working Streamlit application and source are ready for evaluation. Publication under the account owner's Streamlit login is pending; the public prototype link will be added after deployment.
+**Run the prototype:** https://colab.research.google.com/github/ayaan-27/Miraflores_Project/blob/main/notebooks/Month_end_review.ipynb
+
+Select Runtime → Run all. The notebook starts the Streamlit app and prints a temporary public link that remains available while its runtime is running.
 
 **Source and setup:** https://github.com/ayaan-27/Miraflores_Project
 
@@ -57,4 +59,4 @@ I would next observe three close reviewers working with consented, redacted exam
 
 I would simplify or stop if existing tools already solve the problem, preparing the inputs costs more time than the workflow saves, or model output creates excessive checking. Validated demand would justify broader extraction, actual integrations, authenticated identities, controlled durable storage, and evaluation across more accounting situations.
 
-I used an AI coding assistant for scoping, implementation, testing, and drafting. I checked its output through exact expected calculations, invalid inputs, executable workflow tests, and actual model runs. Local-inference and document-export patterns were adapted from an earlier prototype; no employer code or client data was used. The variance data, controls, graph, and Streamlit interface were built for this scope. This iteration took approximately one hour of AI-assisted implementation and validation, including automated setup and model checks; earlier prototype experiments and my personal review/video preparation are separate.
+I used an AI coding assistant for scoping, implementation, testing, and drafting. I checked its output through exact expected calculations, invalid inputs, executable workflow tests, and actual model runs. Local-inference and document-export patterns were adapted from an earlier prototype; no employer code or client data was used. The variance data, controls, graph, and Streamlit interface were built for this scope. The core application took approximately one hour of AI-assisted implementation and validation, including automated setup and model checks. Notebook launch packaging, earlier prototype experiments, and my personal review/video preparation are separate.

@@ -4,7 +4,7 @@ Target: 7–9 minutes. Bracketed directions are screen actions, not spoken words
 
 ## Before recording
 
-- Open the deployed Streamlit application or run `streamlit_app.py` locally. Use **Import ledger → Reset sample** for a fresh workspace.
+- Open the linked Colab notebook, select **Runtime → Run all**, and open the public Streamlit link it prints. Keep that runtime running. Use **Import ledger → Reset sample** for a fresh workspace.
 - Have `variance_samples/software-contract.pdf`, `wrong-contract.pdf`, and `invalid-ledger.csv` available. The app can also load its sample agreement directly.
 - Rehearse the Software case once so the model download is complete. Real inference can take time on CPU. If you shorten a wait in the edit, add a visible “Inference wait shortened” caption; keep the actual actions and results.
 - Keep the source README and validation evidence available in another tab. All transactions, documents, and the company are synthetic.

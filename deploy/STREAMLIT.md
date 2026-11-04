@@ -1,4 +1,6 @@
-# Publish Month-end review
+# Optional persistent hosting for Month-end review
+
+For a quick public notebook demo, use [the one-cell Colab launcher](NOTEBOOK.md). The steps below are an optional alternative for a persistent Streamlit URL.
 
 Streamlit's [current documentation](https://docs.streamlit.io/deploy/streamlit-community-cloud) states that Community Cloud is free. The application runs the model on that server; it does not require a paid Hugging Face Space, model API credentials, or an Ollama server on the reviewer's machine.
 
