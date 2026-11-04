@@ -66,9 +66,11 @@ The initial real-model CI runs downloaded and checksum-verified the official wei
 
 ## Public hosting
 
-GitHub Pages cannot run the Python graph or model. A free **Hugging Face Docker Space** is a suitable CPU host; no model API key is required, but the owner needs a Hugging Face account. The root `Dockerfile` is prepared for port 7860. It has not yet been built or deployed as a container in this environment.
+GitHub Pages cannot run the Python graph or model. **Hugging Face now requires a paid plan to create Docker and ordinary Gradio compute Spaces**, even though CPU Basic itself has no hourly hardware charge. Earlier instructions describing a Docker Space as free were incorrect. Do not purchase a plan for this submission. The root `Dockerfile` remains a container deployment option on a suitable host; it is prepared for port 7860 and has not yet been built or deployed as a container in this environment.
 
-For a Space, use the following YAML front matter at the top of its README, followed by any desired description:
+Hugging Face documents a free exception for up to two Gradio ZeroGPU Spaces on personal accounts with a verified email that are more than 30 days old. Eligibility must be confirmed, and the current CPU inference adapter and Docker bundle require adaptation before that route can be used. See [current Spaces requirements](https://huggingface.co/docs/hub/spaces-overview#hardware-resources), [ZeroGPU eligibility](https://huggingface.co/docs/hub/spaces-zerogpu#using-and-hosting-zerogpu-spaces), and [deployment status](../deploy/HUGGINGFACE.md). Local execution requires no subscription or model API key.
+
+For a Docker Space on an eligible hosting plan, use the following YAML front matter at the top of its README, followed by any desired description:
 
 ```yaml
 ---
@@ -82,7 +84,7 @@ pinned: false
 ---
 ```
 
-Copy this project's Dockerfile, both `requirements-agent.txt` and `requirements-agent-base.txt`, `agent_workspace/`, `agent_samples/`, and `scripts/download_agent_model.py` into that Space. Startup downloads and verifies the model, then starts the same API/UI. Free CPU Spaces can sleep when inactive. Their filesystem is not durable across rebuilds or restarts; SQLite demonstrates process-restart recovery on retained storage, not guaranteed cloud persistence. Use a volume or suitable persistent store before promising durable hosted audit history.
+Copy this project's Dockerfile, both `requirements-agent.txt` and `requirements-agent-base.txt`, `agent_workspace/`, `agent_samples/`, and `scripts/download_agent_model.py` into that Space. Startup downloads and verifies the model, then starts the same API/UI. CPU Basic Spaces can sleep when inactive. Their filesystem is not durable across rebuilds or restarts; SQLite demonstrates process-restart recovery on retained storage, not guaranteed cloud persistence. Use a volume or suitable persistent store before promising durable hosted audit history.
 
 `deploy/space-README.md` is a ready-to-use Space README with the required Docker metadata. The prepared deployment ZIP places it at the root as `README.md`, with only the files needed to build and run the server. Extract the ZIP before uploading and preserve its folder paths.
 

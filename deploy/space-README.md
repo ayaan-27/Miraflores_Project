@@ -29,7 +29,7 @@ Other cases cover changed vendor-bank details, a plausible duplicate invoice, an
 
 ## Runtime and scope
 
-This Docker Space downloads the official `Qwen/Qwen2.5-1.5B-Instruct-GGUF` Q8 model and verifies its SHA-256 digest before use. The model runs on this server's CPU; no external model inference API is called. Initial startup and investigations can take several minutes on free CPU hardware. The model is Apache 2.0 licensed; see the official Qwen model repository for its terms.
+This Docker Space downloads the official `Qwen/Qwen2.5-1.5B-Instruct-GGUF` Q8 model and verifies its SHA-256 digest before use. The model runs on this server's CPU; no external model inference API is called. Initial startup and investigations can take several minutes on CPU Basic hardware. Creating a new Docker Space now requires a paid Hugging Face plan, despite CPU Basic having no hourly hardware charge. This bundle is not a free hosting route. The model is Apache 2.0 licensed; see the official Qwen model repository for its terms.
 
 This is an unauthenticated demonstration workspace. Documents, case history, and artifacts are readable through its API. Use synthetic documents only. Free-host storage can be reset by rebuilds or restarts. SQLite checkpoints demonstrate resumption on retained storage, not guaranteed cloud audit-history durability.
 
