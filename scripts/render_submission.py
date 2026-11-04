@@ -1,7 +1,7 @@
 """Create a standard Word submission and export the same document to PDF.
 
 Optional document tooling: python-docx==1.2.0 and LibreOffice (soffice).
-Neither is required to run the LedgerLens application.
+Neither is required to run the month-end review application.
 """
 
 from pathlib import Path
@@ -20,7 +20,7 @@ from docx.shared import Inches, Pt, RGBColor
 
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("--input", default="docs/written-submission.md")
+parser.add_argument("--input", default="docs/variance-submission.md")
 arguments = parser.parse_args()
 INPUT_PATH = ROOT / arguments.input
 DOCX_PATH = INPUT_PATH.with_suffix(".docx")
@@ -142,7 +142,7 @@ soffice = shutil.which("soffice") or shutil.which("libreoffice")
 if not soffice:
     raise SystemExit("DOCX created. Install LibreOffice to export the matching PDF.")
 
-with tempfile.TemporaryDirectory(prefix="ledgerlens-word-") as temp:
+with tempfile.TemporaryDirectory(prefix="month-end-word-") as temp:
     temporary = Path(temp)
     subprocess.run(
         [

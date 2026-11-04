@@ -13,8 +13,7 @@
     "node": ">=22.13"
   },
   "dependencies": {
-    "jspdf": "4.2.1",
-    "pdfjs-dist": "6.5.438"
+    "jspdf": "4.2.1"
   },
   "devDependencies": {
     "esbuild": "0.28.2"

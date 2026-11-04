@@ -1,6 +1,12 @@
 # Month-End Review
 **Ayaan Khan | MiraFlores case study | Prepared for GreenGrowth CPAs**
 
+## Overview
+
+I built Month-End Review, a working prototype that helps an accountant investigate an expense movement during the month-end close and turn it into a supported review decision. It connects the account balance change to the underlying transaction, checks its supporting evidence, and calculates whether an adjustment is needed under the supplied accounting policy.
+
+The product follows four steps: identify the movement, check the evidence, calculate the treatment, and obtain a human review decision. When support is missing, the case pauses and requests the specific record; matching evidence resumes the case and triggers a fresh calculation and review. The reviewer receives a PDF workpaper, a proposed-journal CSV, and a JSON record of the findings and decisions. The prototype runs in a browser, including offline, using synthetic data and explicit accounting rules. It does not post entries to an accounting system.
+
 **Prototype:** https://ayaan-27.github.io/Miraflores_Project/
 
 **Offline prototype:** Open OPEN_THIS.html from the submitted ZIP in a desktop browser. It needs no installation, server, account, or API key. A self-contained Python notebook with executed outputs is also included.

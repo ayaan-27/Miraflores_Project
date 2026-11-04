@@ -90,7 +90,6 @@ notebook={'cells':cells,'metadata':{'kernelspec':{'display_name':'Python 3','lan
 for cell in cells:
     import hashlib
     cell['id']=hashlib.sha256(''.join(cell['source']).encode()).hexdigest()[:10]
-(ROOT/'submission/Month_end_review.ipynb').write_text(json.dumps(notebook,indent=1))
-# Keep the old notebook link useful, without a bootstrap or tunnel.
+(ROOT/'notebooks').mkdir(exist_ok=True)
 (ROOT/'notebooks/Month_end_review.ipynb').write_text(json.dumps(notebook,indent=1))
 print('Standalone notebook executed: expected 22,000 deferral, 4,000 adjusted expense, controls and exports passed.')

@@ -1,7 +1,0 @@
-# Production no-key agent, including native local inference.
--r requirements-agent-base.txt
-diskcache==5.6.3
-jinja2==3.1.6
-llama-cpp-python==0.3.16
-markupsafe==3.0.4
-numpy==2.2.6
