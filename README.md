@@ -4,7 +4,9 @@ A Streamlit application that investigates an expense movement, checks its eviden
 
 The interface is titled **Month-end review**. It shows account balances, findings, evidence, and review actions. The default deployment runs the actual LangGraph workflow and a small local model in the same server process. No inference API key, separate Ollama server, or paid Hugging Face Space is required.
 
-**Public deployment:** awaiting the account owner's Streamlit publishing step. [Exact deployment instructions](deploy/STREAMLIT.md). Do not send the previous GitHub Pages prototype as this application.
+**Quick demo:** [Open the notebook in Colab](https://colab.research.google.com/github/ayaan-27/Miraflores_Project/blob/main/notebooks/Month_end_review.ipynb) and select **Runtime → Run all**. Its single cell installs the app, starts Streamlit, and prints a temporary public URL. Keep that runtime running while reviewers use the link. No Streamlit hosting account, Cloudflare account, or inference API key is needed. [Notebook details](deploy/NOTEBOOK.md).
+
+For a persistent hosted app, [Streamlit Community Cloud](deploy/STREAMLIT.md) remains optional. The earlier GitHub Pages prototype is a different application.
 
 ## Run
 
