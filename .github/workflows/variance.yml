@@ -27,7 +27,7 @@ jobs:
           cache-dependency-path: requirements*.txt
       - run: pip install -r requirements.txt pytest==8.4.2
       - name: Run actual graph, accounting controls, PDF, and persistence tests with explicit test planner
-        run: python -m pytest -c variance_tests/pytest.ini -q
+        run: python -m pytest -c variance_tests/pytest.ini variance_tests -q
       - uses: actions/cache@v4
         with:
           path: /tmp/month-end-review/models

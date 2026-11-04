@@ -87,12 +87,12 @@ def evaluate(workspace, account_code: str) -> dict:
     if not supported:
         return result
     policy = workspace.document("POL-CLOSE")
-    if not policy or value(policy, "Basis") != "Accrual":
-        finding("Accounting policy", False, "The required accrual policy is unavailable.", [ledger["id"]])
+    if not policy or value(policy, "Basis") != "Accrual" or value(policy, "Allocation") != "Equal monthly allocation over full calendar months":
+        finding("Accounting policy", False, "The supported accrual and full-month allocation policy is unavailable.", [ledger["id"]])
         return result
     sources[policy["id"]] = policy
     if invoice["kind"] == "Payroll memo":
-        ok = value(invoice, "Earned period") == CATALOG["period"] and value(invoice, "Approval") == "Approved"
+        ok = value(invoice, "Earned period") == CATALOG["period"] and value(invoice, "Approval") == "Approved" and value(policy, "Bonuses") == "Expense in the earned period with approval"
         finding("Earned-period support", ok, "The approved one-time bonus was earned in October." if ok else "Bonus approval or earned period does not support this close.", [invoice["id"], policy["id"]])
         if ok:
             result.update(outcome="explained", approval_allowed=True)

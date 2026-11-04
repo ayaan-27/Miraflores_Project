@@ -20,6 +20,7 @@ with sync_playwright() as p:
     page.on("pageerror", lambda e: errors.append(str(e)))
     page.goto(URL, wait_until="networkidle")
     expect(page.get_by_role("heading", name="Month-end review", exact=True)).to_be_visible(timeout=30000)
+    expect(page.get_by_text("$26,000.00", exact=True)).to_be_visible(timeout=30000)
     text = page.locator("body").inner_text()
     for brand in ["LedgerLens", "GreenGrowth", "LangGraph", "Ollama", "Ayaan"]:
         assert brand not in text, brand
@@ -41,7 +42,7 @@ with sync_playwright() as p:
     expect(page.get_by_text("Balance after the proposed adjustment: $4,000.00. Entries remain drafts.", exact=True)).to_be_visible()
     page.get_by_label("Review note", exact=True).fill("Reviewed the source agreement, allocation, and balanced proposed journal.")
     page.get_by_role("button", name="Approve workpaper", exact=True).click()
-    expect(page.get_by_text("Workpaper approved", exact=True)).to_be_visible(timeout=30000)
+    expect(page.get_by_test_id("stAlertContentSuccess").get_by_text("Workpaper approved", exact=True)).to_be_visible(timeout=30000)
     with page.expect_download() as d:
         page.get_by_role("button", name="Review record", exact=True).click()
     record = json.loads(Path(d.value.path()).read_text())
@@ -49,7 +50,8 @@ with sync_playwright() as p:
     assert record["analysis"]["adjusted_cents"] == 400000
     assert len(record["history"]) == 2 and record["round"] == 2
     assert record["completion"]["journal_posted"] is False
-    assert "Qwen/Qwen2.5-0.5B-Instruct-GGUF" == record["model"]
+    expected_model = "Test planner" if os.environ.get("VARIANCE_BROWSER_MODE") == "test_double" else "Qwen/Qwen2.5-0.5B-Instruct-GGUF"
+    assert record["model"] == expected_model
     (OUT / "review.json").write_text(json.dumps(record, indent=2))
     with page.expect_download() as d:
         page.get_by_role("button", name="Workpaper PDF", exact=True).click()
@@ -61,13 +63,13 @@ with sync_playwright() as p:
     csv_text = Path(d.value.path()).read_text()
     assert "22000.00" in csv_text and "NOT POSTED" in csv_text
     page.reload(wait_until="networkidle")
-    expect(page.get_by_text("Workpaper approved", exact=True)).to_be_visible(timeout=30000)
+    expect(page.get_by_test_id("stAlertContentSuccess").get_by_text("Workpaper approved", exact=True)).to_be_visible(timeout=30000)
     page.get_by_role("button", name="Import ledger", exact=True).click()
     ledger_input = page.get_by_test_id("stFileUploader").filter(has=page.get_by_text("Expense ledger CSV", exact=True)).locator("input[type=file]")
     ledger_input.set_input_files(str(SAMPLES / "invalid-ledger.csv"))
     page.get_by_role("button", name="Load ledger", exact=True).click()
     expect(page.get_by_text("Row 3: duplicate or invalid transaction ID.", exact=True)).to_be_visible(timeout=30000)
-    expect(page.get_by_text("Workpaper approved", exact=True)).to_be_visible()
+    expect(page.get_by_test_id("stAlertContentSuccess").get_by_text("Workpaper approved", exact=True)).to_be_visible()
     page.keyboard.press("Escape")
     page.screenshot(path=str(OUT / "completed.png"), full_page=True)
     page.set_viewport_size({"width": 390, "height": 844})

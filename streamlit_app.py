@@ -28,7 +28,7 @@ def execute(operation, label="Investigating"):
             status.update(label="Investigation complete", state="complete", expanded=False)
             st.rerun()
         except ValueError as error:
-            status.update(label="Investigation stopped", state="error", expanded=False)
+            status.update(label="Action not completed", state="error", expanded=True)
             st.error(str(error))
 
 
@@ -175,6 +175,10 @@ def main():
                     st.query_params["w"] = new_key
                     st.rerun()
                 except ValueError as error: st.error(str(error))
+            st.divider()
+            if st.button("Reset sample", key="reset_sample"):
+                st.query_params["w"] = uuid4().hex
+                st.rerun()
     st.divider()
     left, right = st.columns([1, 3], gap="large")
     accounts = service.workspace.accounts()
