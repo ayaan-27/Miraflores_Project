@@ -9,3 +9,5 @@ artifacts/
 *.pyc
 .env
 node_modules/
+.variance-data/
+.streamlit/secrets.toml

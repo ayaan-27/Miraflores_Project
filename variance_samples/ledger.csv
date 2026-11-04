@@ -1,0 +1,14 @@
+id,date,account,vendor,description,debit,credit,currency,document_id
+SW-S1,2026-09-25,6100,OrbitCloud,Monthly workspace seats,1200.00,0.00,USD,SEATS-S
+SW-S2,2026-09-25,6100,DevTools,Monthly developer tools,800.00,0.00,USD,TOOLS-S
+PAY-S,2026-09-25,6200,PeopleOps,Regular payroll,40000.00,0.00,USD,PAYROLL-S
+FEE-S,2026-09-25,6300,Northline Advisory,Retainer,6000.00,0.00,USD,RETAINER-S
+TRV-S,2026-09-25,6400,Travel suppliers,Travel expense,3200.00,0.00,USD,TRAVEL-S
+SW-O1,2026-10-25,6100,OrbitCloud,Monthly workspace seats,1200.00,0.00,USD,SEATS-O
+SW-O2,2026-10-25,6100,DevTools,Monthly developer tools,800.00,0.00,USD,TOOLS-O
+PAY-O,2026-10-25,6200,PeopleOps,Regular payroll,40000.00,0.00,USD,PAYROLL-O
+FEE-O,2026-10-25,6300,Northline Advisory,Retainer,6000.00,0.00,USD,RETAINER-O
+TRV-O,2026-10-25,6400,Travel suppliers,Travel expense,3300.00,0.00,USD,TRAVEL-O
+SW-O3,2026-10-25,6100,OrbitCloud,Annual workspace license renewal,24000.00,0.00,USD,INV-SW-102
+PAY-O2,2026-10-25,6200,PeopleOps,One-time performance bonus,18000.00,0.00,USD,MEMO-BONUS-OCT
+FEE-O2,2026-10-25,6300,Northline Advisory,Additional implementation work,8000.00,0.00,USD,INV-FEE-108

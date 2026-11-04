@@ -1,0 +1,43 @@
+name: Validate variance investigation
+on:
+  push:
+    branches: [feat/month-end-variance]
+    paths: ['variance_workspace/**', 'variance_samples/**', 'variance_tests/**', 'streamlit_app.py', 'requirements-variance*.txt', 'requirements.txt', 'scripts/live_variance_check.py', '.github/workflows/variance.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: variance-validation
+  cancel-in-progress: true
+jobs:
+  workflow-and-real-model:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      CC: gcc
+      CXX: g++
+      CMAKE_BUILD_PARALLEL_LEVEL: '2'
+      CMAKE_ARGS: '-DGGML_CUDA=OFF -DGGML_NATIVE=OFF'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements.txt pytest==8.4.2
+      - name: Run actual graph, accounting controls, PDF, and persistence tests with explicit test planner
+        run: python -m pytest variance_tests -q
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/month-end-review/models
+          key: qwen2.5-0.5b-instruct-q4km-variance-v1
+      - name: Run real small-model investigation and evidence-resume loop
+        run: python -u scripts/live_variance_check.py
+      - name: Retain measured model and workflow evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: variance-validation
+          path: artifacts/variance-live/
+          if-no-files-found: ignore
