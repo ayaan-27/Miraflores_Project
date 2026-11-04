@@ -1,79 +1,79 @@
-# LedgerLens — Invoice Exception Investigator
+# Month-End Variance Investigator
 
-Prepared by Ayaan Khan for the MiraFlores case study, with GreenGrowth CPAs as the intended audience. An independent prototype using synthetic documents and business records.
+A Streamlit application that investigates an expense movement, checks its evidence and accounting policy, and prepares a workpaper and proposed journal for human review. Built for the MiraFlores case study; GreenGrowth CPAs is the intended evaluation audience, not an integration partner.
 
-**[Open the public prototype](https://ayaan-27.github.io/Miraflores_Project/)** · **[Written submission (Word)](docs/agent-submission.docx)** · **[PDF](docs/agent-submission.pdf)** · **[Video narration](docs/agent-video-script.md)**
+The interface is titled **Month-end review**. It shows account balances, findings, evidence, and review actions. The default deployment runs the actual LangGraph workflow and a small local model in the same server process. No inference API key, separate Ollama server, or paid Hugging Face Space is required.
 
-## Review the prototype without installing anything
+**Public deployment:** awaiting the account owner's Streamlit publishing step. [Exact deployment instructions](deploy/STREAMLIT.md). Do not send the previous GitHub Pages prototype as this application.
 
-Open the public link in a modern desktop browser. No account, API key, or local server is needed.
+## Run
 
-1. Start **An invoice ahead of delivery**. The actual PDF bills $10,000 for 100 lamps; receiving evidence supports 80. Inspect the **$2,000** unsupported amount, source citations, and execution trace.
-2. Enter a reviewer name and note. **Recommend release** is blocked. Select **Request more evidence** and inspect the editable request draft.
-3. Download the additional sample receiving report from the case, then upload it using **Add evidence & resume**. It supports 20 more lamps. The same case advances to **Round 2**, reruns its checks, and retains your earlier decision.
-4. Inspect the zero unsupported amount, record a release recommendation, and download the PDF workpaper and JSON review pack. No payment or message is sent.
-5. Try the bank-change, duplicate, and clean cases. Import `agent_samples/invalid-invoice.pdf` to see an invalid upload rejected without replacing the current case.
-
-## What runs in each version
-
-| Capability | Public browser prototype | Local agentic implementation |
-| --- | --- | --- |
-| Read actual PDF text | PDF.js | pypdf |
-| Extract fields and quotes | Explicit labeled-field rules; one-line-item sample format | Ollama model with schema validation and bounded repair |
-| Investigate evidence | Fixed five-query checklist against synthetic records | LangGraph model-driven selection of scoped read-only LangChain tools |
-| Financial controls | Actual integer-cent calculations | Actual Decimal calculations |
-| Review narrative | Templates derived from control results | Model-drafted verifier memo; recommendation and citations checked |
-| Human decisions and evidence reply | Actual review, PDF reply, rechecks, and retained history | LangGraph interrupts, Command resumption, and same-thread re-investigation |
-| Persistence | IndexedDB in the reviewer's browser | SQLite and LangGraph checkpoints on the local server |
-| Model inference | None; visibly disclosed in the interface and exports | Actual local Ollama inference; no model API key |
-
-The public version demonstrates the product workflow. **It does not execute LangGraph or live model reasoning.** The local version implements and validates those capabilities. Neither version connects to real accounting systems. All supplier records, policies, and source documents are synthetic. Bank verification compares four-digit suffixes only.
-
-## Run the full LangGraph + Ollama version
-
-Use Python 3.12. Install and start [Ollama](https://ollama.com/download), then download the model:
-
-```bash
-ollama pull qwen2.5:3b
-```
-
-Clone this repository or extract the source ZIP, then run from its folder:
+Use **Python 3.12**. Linux needs a C/C++ compiler and CMake (`packages.txt` supplies these on Community Cloud). The runtime is pinned; native compilation is limited to one build job.
 
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
-pip install -r requirements-agent-ollama.txt
-python -m uvicorn agent_workspace.api:app --host 127.0.0.1 --port 8000
+pip install -r requirements.txt
+python -m streamlit run streamlit_app.py
 ```
 
-Open **http://127.0.0.1:8000**. On Windows use `python` and activate with `.venv\Scripts\Activate.ps1`. Keep Ollama running; on Linux you may need `ollama serve` in another terminal. Allow about 2 GB for the model and use a machine with at least 8 GB RAM. CPU inference can take minutes; supported local GPUs can be used by Ollama. The model is configurable with `OLLAMA_MODEL`; financial controls and human gates remain in code.
+On Windows, use `python` and activate with `.venv\Scripts\Activate.ps1`. If you prefer using an existing Ollama installation, use the alternative below instead of building native inference.
 
-[Detailed setup, configuration, architecture, and limits](docs/agent-upgrade.md). An optional native llama-cpp adapter is also retained. Ollama supplies inference, not public hosting; reviewers can use the public workflow demo without running it themselves.
+The first investigation downloads the public Qwen2.5-0.5B-Instruct Q4 model and verifies its bytes against the SHA-256 digest supplied by the official repository. Subsequent investigations reuse it. The model is CPU-based; allow time for the first download and inference. The app does not substitute test responses when a model is unavailable. A failed investigation retains its checkpoint and can be retried.
 
-## Run the public browser version locally
+### Optional Ollama setup
 
-Use Node.js 24 and Python 3:
+Install/start [Ollama](https://ollama.com/download) and pull `qwen2.5:3b`. Install `requirements-variance-base.txt` rather than `requirements.txt`, then set `VARIANCE_PROVIDER=ollama` and run the same Streamlit command. The default endpoint is `http://127.0.0.1:11434`; `OLLAMA_MODEL` and `OLLAMA_BASE_URL` can override the model and server. On PowerShell set `$env:VARIANCE_PROVIDER="ollama"` before running Streamlit. The model changes; the graph, calculations, and human gates stay the same.
+
+## Try the core workflow
+
+1. Select **Software** and click **Investigate**. September expense is **$2,000**; October is **$26,000**, a **$24,000** movement. The investigator queries the SQLite ledger, reads the renewal invoice and close policy, and finds that the service agreement is missing. It cannot propose a treatment from the invoice description alone.
+2. Inspect **Evidence** and **Activity**. Quotes come from actual PDF text. Queries are read-only and scoped to the account and two periods.
+3. Enter a reviewer name and note; choose **Request evidence**. Approval is blocked. The editable request is a draft; no email is sent.
+4. Upload `variance_samples/software-contract.pdf`, or select **Use sample agreement**, which reads that same actual PDF. It supplies a $24,000 service period from October 2026 through September 2027. The same graph thread resumes, retains the request, and reruns the investigation.
+5. Inspect the **$22,000** proposed reclassification: debit prepaid services, credit software expense. The monthly allocation is $2,000, so October software expense after the proposed adjustment is **$4,000**, including the original $2,000 of recurring costs. Entries remain drafts.
+6. Enter a new review note and **Approve workpaper**. Download the PDF, journal CSV, and JSON review record. Nothing is posted to an accounting system.
+
+Other cases: **Payroll** increases from $40,000 to $58,000; an approved October bonus memo supports the $18,000 change, so no adjustment is proposed. **Professional fees** needs a missing agreement; its supplied October-only agreement supports the $8,000 additional charge without a deferral. **Travel** is below the illustrative review threshold.
+
+## Difficult and invalid inputs
+
+While waiting for the software agreement, upload `wrong-contract.pdf`. It is a real PDF for a different document/vendor; it is rejected and the existing case remains waiting. Then upload the correct contract and continue. `invalid-document.pdf` is deliberately plain text and is rejected before it can change evidence.
+
+Use **Import ledger** with `invalid-ledger.csv`. Its duplicate transaction ID is rejected atomically; the current workspace is preserved. The valid `ledger.csv` starts a separate workspace. **Reset sample**, inside the same menu, starts a fresh sample review for rehearsals or different evidence.
+
+## What is implemented
+
+- A real **LangGraph StateGraph**, conditional tool loop, SQLite checkpoint saver, `interrupt`, and `Command` resumption. The model chooses from remaining permitted tools using their observed results. It has eight decisions per round; mandatory evidence coverage is enforced. A verifier calculates the treatment and checks a short model explanation. Review and evidence responses are graph events, not simulated progress.
+- Actual parameterized **SQLite** queries over the CSV expense extract, vendor comparisons, PDF text/quote extraction, source hashes, and deterministic accounting controls. Tools execute as scoped LangChain tools; the model cannot submit arbitrary SQL or write to the ledger.
+- Full-month allocation in integer cents, cent-conserving rounding, duplicate-document detection, source matching, balanced draft journals, and blocked approval when required support is unresolved.
+- Streamlit file imports, source tables and PDF previews, review history, editable evidence requests, and PDF/CSV/JSON outputs.
+
+The ledger, supplier documents, company, and close policy are synthetic. They are not connections to a real ERP, bank, payroll platform, or accounting firm. PDF fields use the supplied labeled format; general document extraction and OCR are deferred. The close is deliberately limited to the supplied expense accounts, USD, September/October 2026, and one positive posting that reconciles a material movement. Multiple drivers, duplicate postings, partial service months, and prior-period effects remain on hold for manual review.
+
+The draft prepaid account mapping uses illustrative account 1500 (Prepaid services). The prepaid treatment follows the supplied sample accrual policy; it is not a general determination under every accounting framework. The system checks field consistency, not document authenticity. Reviewer names are entered and not authenticated. No email, journal posting, or other external financial action occurs.
+
+## Validation
 
 ```bash
-npm ci
-npm test
-npm run build
-npm start
+pip install pytest==8.4.2
+python -m pytest -c variance_tests/pytest.ini variance_tests -q
 ```
 
-Open http://127.0.0.1:4173. Deploy only `dist/`; it contains the public demo and synthetic samples. It excludes the resume, case-study brief, Python data directories, and submission files. GitHub Pages publishes this build on main updates. The earlier receipt-matching prototype is retained at `/legacy/`; its [documentation](docs/legacy-v1.md) describes v1 only.
+The workflow/control tests and Streamlit AppTest checks use an explicit injected test planner; it is never a production fallback. They exercise the actual graph, tools, SQLite, PDFs, financial calculations, review gates, invalid replies, retry, and retained-disk restart recovery.
 
-## Evidence and boundaries
+The complete current build passed [actual-model and Streamlit browser validation](https://github.com/ayaan-27/Miraflores_Project/actions/runs/41755341841). The model check completed the missing-contract loop, proposed $22,000, produced the $4,000 adjusted expense, and explained the bonus without an adjustment. It made 21 real model calls in 132.1 seconds excluding setup/download, with 749.6 MiB peak process RSS. A separate browser exercised `streamlit_app.py` with the actual model, wrong/correct PDF uploads, approval, retained reload, invalid CSV rejection, and all exports. The Streamlit process reached 939.0 MiB peak RSS in that run. These are small synthetic CPU checks, not production accuracy or hosted-performance claims. Current [validation workflow](https://github.com/ayaan-27/Miraflores_Project/actions/workflows/variance.yml).
 
-- **25 Python tests pass** for framework execution, financial controls, checkpoint/review behavior, API validation, and Ollama protocol errors. Model doubles and mocked HTTP transports are explicit.
-- **Real Ollama integration passed:** [validation run](https://github.com/ayaan-27/Miraflores_Project/actions/runs/41745682334). Actual local Qwen inference, five tools per round, the $2,000 hold, the receiving PDF reply, and both review gates completed in 876.9 seconds on the CPU runner, excluding setup. Reviewer actions were automated test inputs.
-- The earlier native adapter also [passed real inference](https://github.com/ayaan-27/Miraflores_Project/actions/runs/41565144512). These small synthetic checks do not establish accuracy on unseen invoices.
-- Node tests check the public financial controls, all four cases, rejected approvals, duplicate/wrong evidence, and exact amounts. Browser acceptance exercises actual PDFs, the evidence loop, reload/history, invalid input, and PDF/JSON exports. The browser test identifies which mode it is testing.
+For browser checks install Playwright 1.62.0 and Chromium, serve the app, and run `python variance_tests/browser_smoke.py`. The separate `variance_tests/serve_fixture.py` is only an explicit interface-test harness; do not deploy it. The JSON output identifies its test planner when used. CI uses `streamlit_app.py` with the actual model.
 
-Python checks: `pip install -r requirements-agent-dev.txt`, then `python -m pytest -q`. Browser checks: serve the built public site and run `LEDGERLENS_AGENT_TEST_URL=http://127.0.0.1:4173 LEDGERLENS_AGENT_TEST_MODE=guided_demo python tests/agent_browser_smoke.py` with Playwright and Chromium installed.
+## Storage and configuration
 
-Use synthetic documents only. Neither version implements authenticated identities, verified document authenticity, production access controls, OCR, immutable audit storage, or financial-system writes. Browser storage can be cleared; export before sharing a review. An exported reviewer name is not a verified identity. Public mode supports the supplied labeled, single-line-item PDF format; the local model supports a broader typed extraction schema but still requires evaluation.
+`VARIANCE_DATA_DIR` sets the model/workspace location; the default is an application directory under the system temporary folder. An opaque workspace ID in the URL identifies this demonstration session. Checkpoints and uploads survive reruns/reloads while the files remain on that server. Streamlit Community Cloud can restart or sleep; temporary storage is not guaranteed to persist. Export the review before relying on it. Workspace IDs are not a substitute for authentication; use only synthetic inputs.
 
-## AI and third-party components
+`VARIANCE_MODEL_PATH` can point to the expected official embedded model file. The download helper requires its checksum metadata. Python 3.12 and the locked runtime are the tested configuration. No inference credentials or Streamlit secrets are required for the default app.
 
-An AI coding assistant helped with scope, code, tests, and written drafts. No employer code or client data was used. Python dependencies are pinned in the requirements files; browser dependencies are pinned in `package-lock.json`. LangGraph/LangChain, FastAPI, pypdf, PDF.js (Apache 2.0), jsPDF (MIT), and Qwen/Ollama are external components. Model weights are downloaded separately and are not included in the source bundle. Consult the respective projects' licenses and model cards.
+## Submission and reuse
+
+The written submission and video narration for this use case are in `docs/variance-submission.*` and `docs/variance-video-script.md`. They supersede the previous invoice prototype's submission. Earlier app folders are retained as prior work; the deploy entrypoint for this project is **streamlit_app.py**.
+
+An AI coding assistant helped scope, implement, test, and draft the project. Local-inference and document-export patterns were adapted from the earlier prototype; no employer code or client data was used. The variance ledger, accounting controls, graph, and Streamlit interface were developed for this scope. Streamlit, LangGraph/LangChain, llama-cpp-python, pypdf, reportlab, and the Qwen model are third-party components. The default Qwen model is Apache 2.0 licensed; model weights are downloaded separately and not bundled with the source. Consult upstream licenses before redistribution.
