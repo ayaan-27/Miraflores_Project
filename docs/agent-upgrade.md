@@ -1,6 +1,6 @@
 # LedgerLens v2 — invoice exception investigator
 
-This upgrade is being developed alongside the existing browser-only v1. The current GitHub Pages deployment remains v1 until the model-backed replacement is validated and hosted. The v2 UI and API are in `agent_workspace/`.
+The public GitHub Pages prototype demonstrates the workflow without installation. It reads actual PDFs, computes financial controls, accepts review/evidence actions, and retains cases in the browser. It uses template extraction, fixed tool routing, and template summaries; **no LLM or LangGraph executes in public mode**. The full local agentic implementation uses Python, LangGraph, and Ollama. The public adapter is `agent_workspace/web/browser_demo.js`; its mode is disclosed in the UI and exports. The earlier v1 is retained at `/legacy/`.
 
 ## The problem and the useful workflow
 
@@ -27,7 +27,7 @@ Model weights are external dependencies and are not included in the source repos
 
 ### Run with Ollama (recommended)
 
-Install [Ollama](https://ollama.com/download), start the application, and use Python 3.12. A machine with at least 8 GB RAM is recommended. CPU inference can take several minutes per case; Ollama can use a supported local GPU automatically. Node is only needed for the legacy v1 workflow.
+Install [Ollama](https://ollama.com/download), start the application, and use Python 3.12. A machine with at least 8 GB RAM is recommended. CPU inference can take several minutes per case; Ollama can use a supported local GPU automatically. Node is needed for the public browser build and legacy v1, not for this local Python/Ollama setup.
 
 Download the model once:
 
@@ -86,13 +86,13 @@ python -m pytest -q
 
 The backend tests use explicit model test doubles while executing the actual framework, tools, controls, SQLite checkpoints, and API. They test the hold-to-evidence-to-approval path, bank-change and duplicate holds, source-quote rejection, an unsupported memo returned for revision, attempted control overrides, persistence after reopening the databases, and invalid API inputs. The browser acceptance test is `tests/agent_browser_smoke.py`; its prerequisites are explained in its header. It exercises real PDF upload, source inspection, trace, review, reply, reload/history, and export against a labeled test server. It does not measure live-model accuracy.
 
-The production workflow has no `FixtureModel` fallback. The Ollama protocol tests check readiness, missing models, actual request schemas, invalid output, and connection failures using an explicitly mocked HTTP transport. They are not inference tests. Actual Ollama validation is run by `.github/workflows/ollama-live.yml`; inspect that run before claiming the Ollama path passed real inference. The existing v1 submission files must not be submitted as a description of v2; use the separately labeled v2 documents.
+The local production workflow has no `FixtureModel` fallback. Ollama protocol tests use an explicit mocked HTTP transport; they are not inference tests. Actual Ollama inference also [passed the complete workflow](https://github.com/ayaan-27/Miraflores_Project/actions/runs/41745682334), including ten tool calls across two rounds and both review gates, in 876.9 CPU seconds excluding setup. Reviewer actions were automated test inputs. Public-mode browser checks separately exercise actual PDF reading, integer-cent controls, evidence reply, preserved history, and exports. Use `docs/agent-submission.*` for v2; the earlier `written-submission.*` files describe v1 only.
 
 The initial real-model CI runs downloaded and checksum-verified the official weights and executed actual inference. They caught an unsupported SKU source quote, which motivated the deterministic citation lookup and bounded extraction repair. A subsequent run exposed a native runtime crash, which motivated process isolation and phase-specific diagnostics. These failed runs are not counted as successful model validation. The pinned llama-cpp-python 0.3.16 / NumPy 2.2.6 stack subsequently passed on Ubuntu 24.04: https://github.com/ayaan-27/Miraflores_Project/actions/runs/41565144512. It executed the actual open-weight model, ten tool calls across two rounds, and both review gates in 525.7 seconds, excluding installation and model download. Review decisions in that integration test were automated inputs, not actual human sign-off.
 
 ## Public hosting
 
-The recommended demonstration runs locally with Ollama. Ollama supplies inference; it is not a public host. A public model-backed URL still needs a running machine. Local execution and video recording do not depend on a hosting subscription.
+The reviewer entry point is the [public workflow demo](https://ayaan-27.github.io/Miraflores_Project/), built with `npm ci` and `npm run build`, and hosted by GitHub Pages. The browser adapter is explicitly disclosed; it does not silently replace a failed live-model connection. Reviewers can evaluate the complete sample business workflow without installation. Ollama supplies inference for the local version; a public model-backed URL still needs a running machine.
 
 GitHub Pages cannot run the Python graph or model. **Hugging Face now requires a paid plan to create Docker and ordinary Gradio compute Spaces**, even though CPU Basic itself has no hourly hardware charge. Earlier instructions describing a Docker Space as free were incorrect. Do not purchase a plan for this submission. The root `Dockerfile` remains a container deployment option on a suitable host; it is prepared for port 7860 and has not yet been built or deployed as a container in this environment.
 

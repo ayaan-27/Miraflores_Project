@@ -8,3 +8,4 @@ artifacts/
 .pytest_cache/
 *.pyc
 .env
+node_modules/

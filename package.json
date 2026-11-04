@@ -1,15 +1,22 @@
 {
   "name": "ledgerlens",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "private": true,
   "type": "module",
-  "description": "A private-by-default month-end evidence review prototype",
+  "description": "Invoice evidence workflow with a public browser demo and local LangGraph/Ollama inference",
   "scripts": {
-    "start": "python3 -m http.server 4173 --bind 0.0.0.0",
+    "start": "python3 -m http.server 4173 --bind 127.0.0.1 --directory dist",
     "test": "node --test tests/*.test.js",
     "build": "node scripts/build.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "jspdf": "4.2.1",
+    "pdfjs-dist": "6.5.438"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
   }
 }

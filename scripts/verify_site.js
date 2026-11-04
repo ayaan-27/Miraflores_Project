@@ -1,12 +1,12 @@
-// Deployment smoke check: verify all public assets against this exact build.
-// Runs on GitHub's deployment runner after Pages reports a successful publish.
+// Verify the public workflow demo against the exact build deployed by Pages.
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
-import { importCSV, analyze, summarize } from '../src/engine.js';
+import { readFile, readdir, stat } from 'node:fs/promises';
 const base = process.env.SITE_URL;
 if (!base?.startsWith('https://')) throw new Error('Set SITE_URL to the HTTPS Pages deployment URL.');
 const hash = buffer => createHash('sha256').update(buffer).digest('hex');
-for (const path of ['index.html','styles.css','src/app.js','src/engine.js','samples/bank.csv','samples/receipts.csv','samples/invalid-bank.csv']) {
+const files = (await readdir('dist', {recursive:true})).filter(path => !path.startsWith('legacy/') || ['legacy/index.html','legacy/src/engine.js'].includes(path));
+for (const path of files) {
+  if (!(await stat(`dist/${path}`)).isFile()) continue;
   const expected = await readFile(`dist/${path}`);
   let verified = false;
   for (let attempt = 0; attempt < 6; attempt++) {
@@ -17,8 +17,6 @@ for (const path of ['index.html','styles.css','src/app.js','src/engine.js','samp
   if (!verified) throw new Error(`Deployed asset did not match the current build: ${path}`);
   console.log(`Verified deployed asset: ${path}`);
 }
-const bank = importCSV(await readFile('dist/samples/bank.csv','utf8'),'bank');
-const receipts = importCSV(await readFile('dist/samples/receipts.csv','utf8'),'receipts');
-const summary = summarize(analyze(bank, receipts));
-if (summary.total !== 12 || summary.outstanding !== 6 || summary.exposure !== 59350) throw new Error('Unexpected deployed demo results.');
-console.log('Public prototype verified: exact build assets, 12 demo transactions, 6 unresolved, $593.50.');
+const html = await readFile('dist/index.html','utf8');
+if (!html.includes('content="guided"') || !html.includes('no live LLM')) throw new Error('Public execution-mode disclosure missing.');
+console.log('Public workflow demo verified: exact assets and sample PDFs, explicit no-LLM disclosure, and legacy archive.');

@@ -97,3 +97,8 @@ write_pdf(
     ],
 )
 print("Created", len(catalog["cases"]) + 2, "synthetic source PDFs.")
+(ROOT / "invalid-invoice.pdf").write_text(
+    "SYNTHETIC INVALID UPLOAD EXAMPLE\n"
+    "This file is deliberately plain text, not a PDF document.\n"
+    "Expected result: reject the upload before starting an investigation.\n"
+)

@@ -1,9 +1,9 @@
 # LedgerLens: Agentic Invoice Exception Investigation
 **Ayaan Khan | MiraFlores Case Study | Prepared for GreenGrowth CPAs**
 
-**Draft status:** The full real-model workflow has passed validation. Public hosting and the final prototype link are pending. This document is not the final submission.
+**Prototype:** https://ayaan-27.github.io/Miraflores_Project/ — interactive public workflow demo; no installation. The full LangGraph + Ollama version runs locally from the source.
 
-**Source and setup:** https://github.com/ayaan-27/Miraflores_Project/tree/feat/agentic-invoice-investigator
+**Source and setup:** https://github.com/ayaan-27/Miraflores_Project
 
 ## 1. The problem I chose and what motivated it
 
@@ -31,13 +31,17 @@ My working assumption is that a reviewer currently moves among accounting record
 
 **Where the model helps.** It extracts structured fields from PDF text, chooses evidence queries, and drafts a source-cited review narrative. Conventional code verifies source quotes, performs exact monetary calculations, checks source IDs, and controls which decisions are allowed. A reviewer cannot approve through the API while a required financial control fails.
 
+**Model choice.** I chose Ollama for a straightforward local setup without model API keys. Its default Qwen model is replaceable through configuration. I would evaluate a replacement on extraction, evidence queries, and unsupported claims. The workflow and its controls are the main design contribution: changing the inference provider preserves the investigation state, tool boundaries, and human decision gates.
+
 **The alternative.** A standardized spreadsheet and request checklist could be cheaper to adopt. A conventional pipeline could also handle a completely fixed matching task. The graph is useful here because investigation can return for missing checks, pause for a person, accept a document, and rerun. If those loops do not reduce effort in practice, I would use the simpler workflow or add the capability to an existing platform.
 
 The broader opportunity is a review workspace connected to real accounting systems. The first step deliberately uses one narrow invoice workflow and synthetic system records so that its behavior can be examined without production credentials.
 
 ## 3. What the prototype implements
 
-**Stage 1: Read and ground.** The application reads text from an actual invoice PDF. A local Qwen2.5-1.5B model produces typed fields and source quotes. A source lookup can anchor a value to a unique matching labeled PDF line; it never changes the extracted value or guesses among ambiguous matches. Each value must occur in its quoted source page. Unsupported extraction is returned with specific validation feedback for up to three attempts; an unresolved error stops the run. Scanned images require OCR and are outside this version.
+The public link lets a reviewer read actual sample PDFs, inspect computed controls, request evidence, resume the same case, and export the review. It uses labeled-field extraction, a fixed tool checklist, template narratives, and browser storage. It clearly discloses that no model or LangGraph executes in that mode. The local implementation below supplies the complete agentic workflow with Ollama and SQLite.
+
+**Stage 1: Read and ground.** The application reads text from an actual invoice PDF. A local Qwen model produces typed fields and source quotes. A source lookup can anchor a value to a unique matching labeled PDF line; it never changes the extracted value or guesses among ambiguous matches. Each value must occur in its quoted source page. Unsupported extraction is returned with specific validation feedback for up to three attempts; an unresolved error stops the run. Scanned images require OCR and are outside this version.
 
 **Stage 2: Investigate.** The model chooses among tools for the purchase order, receiving records, vendor master, payment history, and policy. Tools execute real read-only queries against the synthetic fixture catalog. Each result returns to the planner. Inputs, outputs, task descriptions, and source IDs appear in the execution trace. The planner has an eight-decision limit per round.
 
@@ -53,9 +57,9 @@ The Python API, local inference, graph, tools, controls, checkpointing, and brow
 
 ## 4. Validation, learning, and disclosure
 
-**Validation so far.** Fifteen framework, control, checkpoint, and API tests pass using explicit model test doubles. They execute the actual graph and tools, including the hold-to-evidence-to-review loop, unsupported extraction repair, rejected citations, attempted control overrides, invalid replies, and recovery after reopening SQLite. Browser acceptance checks cover source inspection, execution trace, PDF reply, reload/history, reviewer decisions, and JSON/PDF downloads. These tests establish workflow behavior, not local-model quality.
+**Validation so far.** Twenty-five framework, control, checkpoint, API, and Ollama protocol tests pass using explicit model doubles or a mocked HTTP transport. They cover the actual graph and tools, the evidence-response loop, extraction repair, rejected citations, attempted control overrides, invalid replies, retained-disk restart recovery, and unavailable inference. Browser acceptance checks cover source inspection, execution trace, PDF reply, reload/history, reviewer decisions, and JSON/PDF downloads. These tests establish workflow behavior, not model quality.
 
-The first genuine model test downloaded and checksum-verified the official weights and executed inference. It stopped on an unsupported SKU quote. That failure led to the bounded extraction-repair loop; it is not counted as a passing model test. The repaired workflow subsequently passed real-model integration on the pinned CPU runtime: the initial hold, ten tool calls across two rounds, the receiving-report reply, and both review gates completed in 525.7 seconds. Reviewer actions in that test were automated inputs. Public deployment must still be confirmed before this draft is finalized.
+Real Ollama inference passed the complete case: actual PDF extraction, five tool calls per round, the initial $2,000 hold, an additional receiving PDF, same-thread resumption, and both review gates. Reviewer actions in integration checks were automated inputs. An earlier unsupported SKU quote motivated source grounding and bounded repair. Browser tests independently check the public workflow, including real PDF parsing, evidence resumption, rejected invalid input, and exports. These small synthetic checks do not establish accuracy on unseen invoices.
 
 **What I would learn next.** I would interview three bookkeeping or accounts-payable reviewers and inspect consented, redacted examples of their current process. I want to establish whether the bottleneck is finding records, interpreting exceptions, requesting evidence, or waiting for replies. I would compare a standardized spreadsheet with LedgerLens using five to ten willing client datasets.
 
@@ -63,4 +67,4 @@ I would measure reviewer minutes per 100 invoices, extraction errors, incorrect 
 
 **When I would stop or change direction.** I would narrow or stop the product if existing tools already solve the problem, preparing the inputs costs more effort than the workflow saves, model errors require excessive checking, or the spreadsheet performs equally well. If demand is established, the next steps would be reviewed document extraction, authenticated identities, durable storage, and real integrations. Free-host filesystem behavior is not a guarantee of persistent audit history.
 
-**AI, reuse, and time.** I used an AI coding assistant to help develop the scope, implementation, tests, and written draft. No employer code, client data, or prior application code was reused. The inference runtime uses local open weights and requires no model API key. Runtime boundaries and test status are stated explicitly in the setup guide. The initial prototype took about 25 minutes of AI-assisted work; the agent upgrade and validation followed. Final elapsed time will be recorded after validation, excluding my personal review and video recording.
+**AI, reuse, and time.** I used an AI coding assistant to help develop the scope, implementation, tests, and written draft. No employer code or client data was reused. The inference runtime uses local open weights and requires no model API key. Runtime boundaries and test status are stated explicitly in the setup guide. Development and validation took place across multiple sessions with AI assistance. Automated setup and CPU model checks added wall-clock time. No measured commercial savings or production accuracy are claimed.

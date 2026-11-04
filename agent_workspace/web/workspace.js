@@ -26,6 +26,14 @@ const labels = {
   search_policy: "Retrieve control policy",
 };
 let base = localStorage.getItem("ledgerlens-agent-server") || "";
+const publicPage = document.querySelector('meta[name="ledgerlens-runtime"]')?.content === "guided";
+let browserDemo = null;
+if (publicPage) {
+  const {BrowserDemo} = await import("./browser_demo.js");
+  browserDemo = new BrowserDemo();
+}
+const isDemo = () => publicPage && !base;
+const canRun = () => Boolean(health?.workflow_ready || health?.model_ready);
 let health = null,
   cases = [],
   selected = "partial-delivery",
@@ -39,6 +47,7 @@ let eventStream = null,
   refreshing = false;
 
 function url(path) {
+  if (isDemo()) return browserDemo.url(path);
   return `${base}${path}`;
 }
 function notice(text) {
@@ -56,6 +65,7 @@ function cited(ids) {
 }
 
 async function api(path, options = {}) {
+  if (isDemo()) return browserDemo.api(path, options);
   let response;
   try {
     response = await fetch(url(path), {
@@ -108,14 +118,23 @@ async function connect() {
     health = await api("/api/health");
     cases = (await api("/api/cases")).cases;
     $("#connection-label").textContent =
-      health.mode === "test_double"
+      health.mode === "guided_demo"
+        ? "Public demo · no live LLM"
+        : health.mode === "test_double"
         ? "Test harness connected"
         : health.model_ready
           ? "Local model connected"
           : "Local model unavailable";
-    $("#connection-dot").classList.toggle("off", !health.model_ready);
+    $("#connection-dot").classList.toggle("off", !canRun());
+    document.querySelector(".framework").textContent = isDemo() ? "INTERACTIVE WORKFLOW DEMO" : "POWERED BY LANGGRAPH";
+    if (isDemo()) {
+      document.querySelector(".sidebar-bottom strong").innerHTML = "Visible evidence.<br>Human decisions.";
+      document.querySelector(".sidebar-bottom p").textContent = "Real PDF reading and financial checks. Fixed checklist and template drafts.";
+    }
     notice(
-      health.mode === "test_double"
+      health.mode === "guided_demo"
+        ? "Try the complete workflow here. PDF reading, financial checks, review actions, and browser persistence are real. Extraction uses labeled-field rules; tool routing is a fixed checklist and summaries are templates. No LLM or LangGraph runs in this public mode."
+        : health.mode === "test_double"
         ? "TEST HARNESS CONNECTED — model responses are fixtures. This session is for interface testing, not live inference."
         : health.model_ready
           ? ""
@@ -166,6 +185,7 @@ function render() {
     : "Ready to investigate";
   $("#case-header").innerHTML =
     `<div class="case-top"><div class="case-kicker"><span>${current ? "RUN " + current.id.slice(0, 8).toUpperCase() : "SYNTHETIC DEMONSTRATION"}</span><span>${current ? "ROUND " + current.round : "NO RUN STARTED"}</span></div><div class="case-title-line"><div class="vendor-title"><span class="vendor-avatar">${escape(initials(vendor))}</span><div><h2>${escape(vendor)}</h2><small>${escape(invoice?.invoice_number.value || item?.invoice_number || "Upload a supported PDF")}</small></div></div><div class="case-main-amount">${dollars(invoice?.total.value || item?.amount || 0)}<small>INVOICE TOTAL · USD</small></div></div><div class="case-subbar">${badge(current?.status === "failed" ? "error" : current?.controls?.recommendation === "hold" ? "hold" : current?.status === "running" ? "running" : "waiting", status)}<span class="meta-chip">${current?.synthetic === false ? "Imported PDF" : "Synthetic source records"}</span>${current ? `<span class="meta-chip">${escape(current.model)}</span>` : ""}${!current && item ? `<button class="button primary small" id="start-run" ${!health?.model_ready || working ? "disabled" : ""}>Start investigation →</button>` : ""}</div></div>`;
+  if (isDemo() && !current && canRun()) $("#start-run")?.removeAttribute("disabled");
   const sources = current?.controls?.sources || {};
   $("#source-count").textContent = Object.keys(sources).length || "";
   document.querySelectorAll("[data-tab]").forEach((button) => {
@@ -178,11 +198,22 @@ function render() {
       : tab === "trace"
         ? traceView()
         : findingsView(item);
+  if (isDemo()) {
+    const heading = document.querySelector(".memo-box h3");
+    if (heading) heading.textContent = "Template review summary";
+    const caption = document.querySelector(".memo-box small");
+    if (caption) caption.textContent = "Template narrative · Computed controls and cited sources · No model inference in public mode";
+    if (current?.status === "running" && !current.controls) {
+      const note = document.querySelector(".run-banner p");
+      if (note) note.textContent = "Reading the PDF and executing the fixed evidence checklist in your browser. No model inference is being simulated.";
+    }
+  }
   renderProgress();
   renderActivity();
 }
 
 function findingsView(item) {
+  if (!current && isDemo()) return `<div class="intro-state"><div class="eyebrow">PUBLIC INTERACTIVE WORKFLOW</div><h3>${escape(item?.title || "Choose a sample invoice")}</h3><p>Follow an invoice from a financial exception to a reviewed resolution. This free demo uses actual PDF text, exact-cent controls, a fixed evidence checklist, and template summaries. The source also includes the model-driven LangGraph + Ollama implementation.</p><div class="intro-items"><div class="intro-item"><span class="intro-step">1 · READ</span><strong>Inspect the actual PDF</strong><p>Labeled fields anchored to source quotes.</p></div><div class="intro-item"><span class="intro-step">2 · INVESTIGATE</span><strong>Query five evidence sources</strong><p>Orders, receiving, vendor master, payments, and policy.</p></div><div class="intro-item"><span class="intro-step">3 · CHECK</span><strong>Compute the controls</strong><p>Exact amounts and explicit evidence requirements.</p></div><div class="intro-item"><span class="intro-step">4 · REVIEW</span><strong>Request evidence and resume</strong><p>The same case retains your earlier decisions.</p></div></div><a class="button secondary" href="${url("/api/sample/" + item.file)}" target="_blank" rel="noopener">Inspect sample invoice PDF →</a><p class="small-note" style="margin-top:18px">No account or installation is required. Records stay in this browser. Use synthetic documents only. No payment or message is sent.</p></div>`;
   if (!current)
     return `<div class="intro-state"><div class="eyebrow">A COMPLETE INVESTIGATION LOOP</div><h3>${escape(item?.title || "Connect your local agent")}</h3><p>The investigator reads the invoice, chooses evidence tools, and prepares a review pack. A separate control step challenges the result before an identified human can decide.</p><div class="intro-items"><div class="intro-item"><span class="intro-step">INPUT</span><strong>A real invoice PDF</strong><p>Readable text, extracted values, exact source quotes.</p></div><div class="intro-item"><span class="intro-step">INVESTIGATION</span><strong>Five read-only tools</strong><p>Orders, receiving, vendor master, payments, and policy.</p></div><div class="intro-item"><span class="intro-step">CONTROL</span><strong>Computed financial checks</strong><p>Exact arithmetic and explicit evidence requirements.</p></div><div class="intro-item"><span class="intro-step">OUTPUT</span><strong>An actionable review pack</strong><p>Findings, citations, a request draft, and a recorded decision.</p></div></div>${item ? `<a class="button secondary" href="${url("/api/sample/" + item.file)}" target="_blank" rel="noopener">Inspect sample invoice PDF →</a>` : ""}<div class="intro-notice" style="margin-top:20px">The model chooses investigation actions. Computed controls govern the recommendation. Human review is required before a release recommendation; no payment is initiated.</div></div>`;
   if (current.status === "failed" || current.status === "stopped")
@@ -326,6 +357,14 @@ async function loadRun(id, watch = true) {
 
 function watchRun(id) {
   closeStream();
+  if (isDemo()) {
+    const timer = setInterval(async () => {
+      await loadRun(id, false);
+      if (current?.status !== "running") closeStream();
+    }, 250);
+    eventStream = {close: () => clearInterval(timer)};
+    return;
+  }
   const after = current?.events.at(-1)?.seq || 0;
   eventStream = new EventSource(url(`/api/runs/${id}/events?after=${after}`));
   eventStream.onmessage = () => loadRun(id, false);
@@ -519,7 +558,10 @@ $("#connection-form").addEventListener("submit", async (event) => {
   await connect();
 });
 $("#architecture-open").addEventListener("click", () =>
-  $("#architecture-dialog").showModal(),
+  {
+    if (isDemo()) document.querySelector(".architecture-list").innerHTML = `<li><strong>Read & ground.</strong> PDF.js reads the actual document. Fixed label rules extract values and exact source quotes. Unrecognized or ambiguous fields stop the case.</li><li><strong>Investigate.</strong> A fixed checklist executes five read-only queries against the synthetic catalog. This public mode has no model-selected actions.</li><li><strong>Check.</strong> Browser code computes financial controls using integer cents, then prepares a template summary. It does not call an LLM.</li><li><strong>Human review & resume.</strong> Record a hold or evidence request. Upload an additional receiving PDF, rerun the checks, and make a new decision. Case history persists in IndexedDB in this browser.</li><li><strong>Full agentic implementation.</strong> The linked source runs LangGraph and local Ollama for model-based extraction, tool selection, verifier drafting, and SQLite checkpoints. Follow its README to reproduce that mode.</li>`;
+    $("#architecture-dialog").showModal();
+  },
 );
 $("#upload-open").addEventListener("click", () => {
   $("#upload-error").hidden = true;

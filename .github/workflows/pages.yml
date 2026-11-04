@@ -21,6 +21,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - run: npm ci
       - run: npm test
       - run: npm run build
       - uses: actions/configure-pages@v5
@@ -34,3 +35,22 @@ jobs:
         env:
           SITE_URL: ${{ steps.deployment.outputs.page_url }}
         run: node scripts/verify_site.js
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install browser acceptance tools
+        run: |
+          pip install playwright==1.62.0
+          python -m playwright install --with-deps chromium
+      - name: Exercise the actual public prototype
+        env:
+          LEDGERLENS_AGENT_TEST_URL: ${{ steps.deployment.outputs.page_url }}
+          LEDGERLENS_AGENT_TEST_MODE: guided_demo
+        run: python tests/agent_browser_smoke.py
+      - name: Retain public browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-workflow-browser-check
+          path: artifacts/agent-test-*.png
+          if-no-files-found: ignore
